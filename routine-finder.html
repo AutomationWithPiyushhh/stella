@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stella — Routine Finder Diagnostic</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo" aria-label="The Stella Home">
+        <img src="assets/images/logo.svg" alt="The Stella">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Collection</a>
+        <a href="shop.html?category=face" class="nav-link">Face</a>
+        <a href="haircare.html" class="nav-link">Haircare</a>
+        <a href="shop.html?category=body" class="nav-link">Body</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="routine-finder.html" class="nav-link active">Routine Quiz</a>
+        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+      </nav>
+
+      <div class="header-actions">
+        <span class="header-auth-status" style="font-size: 0.82rem;">
+          <a href="account.html">Account</a>
+        </span>
+
+        <a href="checkout.html" class="btn-icon" aria-label="Shopping Bag">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-dot bag-count-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quiz Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="breadcrumbs">
+        <a href="index.html">Home</a> &bull; <span>Routine Diagnostic</span>
+      </div>
+      <span class="text-eyebrow">Personalized Skin Match</span>
+      <h1 class="page-header-title">Find Your Stellar Routine</h1>
+      <p class="page-header-subtitle">
+        Select your skin profile to discover your dermatologist-balanced 3-step ritual. Save an automatic 20% on the curated bundle.
+      </p>
+    </div>
+  </section>
+
+  <main class="container" style="padding: 50px 0 90px 0;">
+    <div style="max-width: 860px; margin: 0 auto; background: var(--color-surface); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-soft);">
+      <!-- Question 1 -->
+      <div style="margin-bottom: 36px;">
+        <span class="text-eyebrow">Question 01</span>
+        <h3 class="heading-md" style="margin: 6px 0 16px 0;">What is your primary skin profile?</h3>
+        <div class="payment-options-grid" style="grid-template-columns: repeat(4, 1fr);" id="q1Grid">
+          <div class="payment-radio-tile selected" onclick="setQuizType('dry', this)">Dry &bull; Dehydrated</div>
+          <div class="payment-radio-tile" onclick="setQuizType('oily', this)">Oily &bull; Blemish Prone</div>
+          <div class="payment-radio-tile" onclick="setQuizType('combination', this)">Combination</div>
+          <div class="payment-radio-tile" onclick="setQuizType('sensitive', this)">Sensitive</div>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div style="margin-bottom: 36px;">
+        <span class="text-eyebrow">Question 02</span>
+        <h3 class="heading-md" style="margin: 6px 0 16px 0;">What is your top care priority?</h3>
+        <div class="payment-options-grid" style="grid-template-columns: repeat(3, 1fr);" id="q2Grid">
+          <div class="payment-radio-tile selected" onclick="setQuizConcern('pigmentation', this)">Dark Spots &bull; Pigmentation</div>
+          <div class="payment-radio-tile" onclick="setQuizConcern('hair', this)">Flake-Free Scalp &bull; Hair</div>
+          <div class="payment-radio-tile" onclick="setQuizConcern('body', this)">Body Clarity &bull; Underarm</div>
+        </div>
+      </div>
+
+      <!-- Diagnostic Results Box -->
+      <div style="background: var(--color-bg); border-radius: var(--radius-lg); padding: 30px; border: 1px solid var(--color-border);" id="quizRecommendationBox">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-legal-bar">
+        <div>&copy; 2026 The Stella. All rights reserved.</div>
+        <div>Crafted with clinical intention. Made in India.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    let userSkinType = 'dry';
+    let userConcern = 'pigmentation';
+
+    function setQuizType(type, el) {
+      userSkinType = type;
+      document.querySelectorAll('#q1Grid .payment-radio-tile').forEach(t => t.classList.remove('selected'));
+      el.classList.add('selected');
+      computeQuizOutput();
+    }
+
+    function setQuizConcern(concern, el) {
+      userConcern = concern;
+      document.querySelectorAll('#q2Grid .payment-radio-tile').forEach(t => t.classList.remove('selected'));
+      el.classList.add('selected');
+      computeQuizOutput();
+    }
+
+    function computeQuizOutput() {
+      const box = document.getElementById('quizRecommendationBox');
+      const catalog = getCatalog();
+
+      let plan = {
+        title: 'Spot Eraser & Barrier Recovery Regimen',
+        description: 'Formulated to fade melanin clusters while reinforcing cellular moisture retention.',
+        items: ['stella-papaya-cleanser', 'stella-dual-phase', 'stella-body-lotion']
+      };
+
+      if (userConcern === 'hair') {
+        plan = {
+          title: 'Scalp Balance & Hair Silkiness Protocol',
+          description: 'Clears dandruff flaking with bio-fermented curd peptides while hydrating face and body.',
+          items: ['stella-dahi-shampoo', 'stella-bi-phase', 'stella-body-lotion']
+        };
+      } else if (userConcern === 'body') {
+        plan = {
+          title: 'Full Body Clarity & Underarm Tone Protocol',
+          description: 'Eliminates body breakouts and hyperpigmentation with targeted BHA and Alpha Arbutin.',
+          items: ['stella-salicylic-body-wash', 'stella-underarm-rollon', 'stella-body-lotion']
+        };
+      }
+
+      const products = plan.items.map(id => catalog.find(p => p.id === id)).filter(Boolean);
+      const originalSum = products.reduce((sum, p) => sum + p.price, 0);
+      const bundlePrice = Math.round(originalSum * 0.8);
+
+      box.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span class="text-eyebrow">Recommended 3-Step Protocol</span>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin-top: 4px;">${plan.title}</h3>
+            <p style="font-size: 0.88rem; color: var(--color-text-secondary); margin-top: 2px;">${plan.description}</p>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 1.35rem; font-weight: 700;">₹${bundlePrice}</div>
+            <div style="font-size: 0.8rem; color: var(--color-text-tertiary); text-decoration: line-through;">₹${originalSum}</div>
+            <span style="font-size: 0.72rem; color: #15803D; font-weight: 700; text-transform: uppercase;">Save 20% Bundle</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0;">
+          ${products.map((p, idx) => `
+            <div style="background: #FFFFFF; border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--color-border); text-align: center;">
+              <span style="font-size: 0.72rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase;">Step 0${idx + 1}</span>
+              <img src="${p.image}" alt="" style="max-height: 110px; width: auto; margin: 10px auto; object-fit: contain;">
+              <h4 style="font-size: 0.88rem; font-weight: 600; line-height: 1.3; margin-bottom: 4px;">${p.name}</h4>
+              <div style="font-size: 0.85rem; font-weight: 700;">₹${p.price}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <button class="btn-checkout-full" onclick="addBundleToBag('${plan.items.join(',')}')">
+          Add Complete 3-Step Bundle to Bag &bull; ₹${bundlePrice}
+        </button>
+      `;
+    }
+
+    function addBundleToBag(idsString) {
+      const ids = idsString.split(',');
+      ids.forEach(id => addToBag(id, 1));
+      showToast('All 3 regimen formulations added to your bag.');
+      setTimeout(() => {
+        window.location.href = 'checkout.html';
+      }, 700);
+    }
+
+    document.addEventListener('DOMContentLoaded', computeQuizOutput);
+  </script>
+</body>
+</html>

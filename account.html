@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stella — Customer Account</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo" aria-label="The Stella Home">
+        <img src="assets/images/logo.svg" alt="The Stella">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Collection</a>
+        <a href="haircare.html" class="nav-link">Haircare</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+      </nav>
+
+      <div class="header-actions">
+        <span class="header-auth-status" style="font-size: 0.82rem;">
+          <a href="account.html" style="font-weight: 600;">Account</a>
+        </span>
+
+        <a href="checkout.html" class="btn-icon" aria-label="Shopping Bag">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-dot bag-count-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 1. NOT LOGGED IN: SIGN IN & SIGN UP FORM -->
+    <div id="authGuestView" class="auth-wrapper">
+      <div class="auth-tabs">
+        <div class="auth-tab-btn active" id="tabBtnSignIn" onclick="switchAuthTab('signin')">
+          Sign In
+        </div>
+        <div class="auth-tab-btn" id="tabBtnSignUp" onclick="switchAuthTab('signup')">
+          Create Account
+        </div>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="signInForm" onsubmit="handleUserSignIn(event)">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="loginEmail" required class="form-input" placeholder="user@thestella.in" value="user@thestella.in">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPassword" required class="form-input" placeholder="Enter password" value="password123">
+        </div>
+
+        <button type="submit" class="btn-checkout-full" style="margin-top: 10px;">
+          Sign In to Stella
+        </button>
+
+        <div style="margin-top: 18px; padding: 12px; background: var(--color-bg); border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--color-text-secondary); text-align: center;">
+          Demo Customer Account:<br>
+          <strong>user@thestella.in</strong> &bull; <strong>password123</strong>
+        </div>
+
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="admin.html" style="font-size: 0.78rem; text-decoration: underline; color: var(--color-primary);">Are you an administrator? Sign in here</a>
+        </div>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="signUpForm" style="display: none;" onsubmit="handleUserSignUp(event)">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="regName" required class="form-input" placeholder="e.g. Priya Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="regEmail" required class="form-input" placeholder="priya@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile Number</label>
+          <input type="tel" id="regPhone" required class="form-input" placeholder="+91 98765 00000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Create Password</label>
+          <input type="password" id="regPassword" required class="form-input" placeholder="At least 6 characters">
+        </div>
+
+        <button type="submit" class="btn-checkout-full" style="margin-top: 10px;">
+          Create Account &bull; Unlock 20% Off
+        </button>
+      </form>
+    </div>
+
+    <!-- 2. LOGGED IN: CUSTOMER DASHBOARD -->
+    <div id="authDashboardView" style="display: none;" class="account-dashboard-grid">
+      <!-- Sidebar Nav -->
+      <aside class="account-nav-panel">
+        <div style="margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--color-border-subtle);">
+          <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); font-weight: 700;">Account Profile</div>
+          <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin-top: 4px;" id="dashboardUserName">User</h3>
+          <div style="font-size: 0.8rem; color: var(--color-text-secondary);" id="dashboardUserEmail">user@thestella.in</div>
+        </div>
+
+        <nav>
+          <a href="#orders" class="account-nav-link active" onclick="switchDashboardTab('orders', this)">Order History</a>
+          <a href="#addresses" class="account-nav-link" onclick="switchDashboardTab('addresses', this)">Saved Address</a>
+          <a href="#profile" class="account-nav-link" onclick="switchDashboardTab('profile', this)">Account Details</a>
+          <button onclick="handleUserLogout()" style="width: 100%; text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-primary); font-weight: 600; cursor: pointer; margin-top: 16px; border-top: 1px solid var(--color-border-subtle);">
+            Sign Out
+          </button>
+        </nav>
+      </aside>
+
+      <!-- Main Panels -->
+      <div>
+        <!-- Panel 1: Orders -->
+        <div id="dashPanelOrders">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
+            <h2 class="heading-md">My Orders</h2>
+            <a href="shop.html" class="btn-minimal btn-minimal-outline" style="font-size: 0.75rem; padding: 6px 14px;">Browse Formulations</a>
+          </div>
+
+          <div id="userOrdersContainer">
+            <!-- Rendered by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Panel 2: Addresses -->
+        <div id="dashPanelAddresses" style="display: none;">
+          <h2 class="heading-md" style="margin-bottom: 20px;">Delivery Address</h2>
+          <div class="form-card" id="userAddressCard">
+            <!-- Rendered by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Panel 3: Profile Details -->
+        <div id="dashPanelProfile" style="display: none;">
+          <h2 class="heading-md" style="margin-bottom: 20px;">Profile Details</h2>
+          <div class="form-card">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="editUserName" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="editUserEmail" class="form-input" disabled style="opacity: 0.7;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="tel" id="editUserPhone" class="form-input">
+            </div>
+            <button class="btn-minimal btn-minimal-primary" onclick="saveProfileChanges()">
+              Update Profile
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="margin-top: 80px;">
+    <div class="container">
+      <div class="footer-legal-bar">
+        <div>&copy; 2026 The Stella. All rights reserved.</div>
+        <div><a href="admin.html" style="text-decoration: underline;">Admin Portal Access</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    function checkAuthView() {
+      const user = getCurrentUser();
+      const guestView = document.getElementById('authGuestView');
+      const dashView = document.getElementById('authDashboardView');
+
+      if (user) {
+        guestView.style.display = 'none';
+        dashView.style.display = 'grid';
+        loadDashboardData(user);
+      } else {
+        guestView.style.display = 'block';
+        dashView.style.display = 'none';
+      }
+    }
+
+    function switchAuthTab(tab) {
+      const btnIn = document.getElementById('tabBtnSignIn');
+      const btnUp = document.getElementById('tabBtnSignUp');
+      const formIn = document.getElementById('signInForm');
+      const formUp = document.getElementById('signUpForm');
+
+      if (tab === 'signin') {
+        btnIn.classList.add('active');
+        btnUp.classList.remove('active');
+        formIn.style.display = 'block';
+        formUp.style.display = 'none';
+      } else {
+        btnUp.classList.add('active');
+        btnIn.classList.remove('active');
+        formIn.style.display = 'none';
+        formUp.style.display = 'block';
+      }
+    }
+
+    function handleUserSignIn(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPassword').value;
+
+      const users = getUsers();
+      const matched = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+
+      if (matched) {
+        setCurrentUser(matched);
+        showToast(`Welcome back, ${matched.name.split(' ')[0]}`);
+        checkAuthView();
+      } else {
+        showToast('Invalid credentials. Check email or password.');
+      }
+    }
+
+    function handleUserSignUp(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const pass = document.getElementById('regPassword').value;
+
+      if (!name || !email || !pass) {
+        showToast('Please fill all required fields.');
+        return;
+      }
+
+      const users = getUsers();
+      const existing = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (existing) {
+        showToast('Account already exists with this email.');
+        return;
+      }
+
+      const newUser = {
+        name,
+        email,
+        phone,
+        password: pass,
+        joinedDate: new Date().toISOString().split('T')[0],
+        addresses: []
+      };
+
+      users.push(newUser);
+      localStorage.setItem('stella_users', JSON.stringify(users));
+      setCurrentUser(newUser);
+      showToast(`Account created. Welcome to The Stella!`);
+      checkAuthView();
+    }
+
+    function handleUserLogout() {
+      setCurrentUser(null);
+      showToast('Signed out successfully.');
+      checkAuthView();
+    }
+
+    function loadDashboardData(user) {
+      document.getElementById('dashboardUserName').textContent = user.name;
+      document.getElementById('dashboardUserEmail').textContent = user.email;
+
+      document.getElementById('editUserName').value = user.name;
+      document.getElementById('editUserEmail').value = user.email;
+      document.getElementById('editUserPhone').value = user.phone || '';
+
+      // Load Orders for this user
+      const allOrders = getOrders();
+      const userOrders = allOrders.filter(o => o.customerEmail.toLowerCase() === user.email.toLowerCase());
+      const container = document.getElementById('userOrdersContainer');
+
+      if (userOrders.length === 0) {
+        container.innerHTML = `
+          <div class="form-card" style="text-align: center; padding: 40px 20px;">
+            <p style="color: var(--color-text-secondary); margin-bottom: 12px;">No orders found under this account.</p>
+            <a href="shop.html" class="btn-minimal btn-minimal-primary">Explore Formulations</a>
+          </div>
+        `;
+      } else {
+        container.innerHTML = userOrders.map(order => `
+          <div class="order-history-card">
+            <div class="order-header-line">
+              <div>
+                <strong style="font-family: var(--font-serif); font-size: 1.05rem;">Order ${order.orderId}</strong>
+                <div style="font-size: 0.78rem; color: var(--color-text-tertiary); margin-top: 2px;">Placed on ${order.date}</div>
+              </div>
+              <div>
+                <span class="order-badge-pill badge-${order.status.toLowerCase()}">${order.status}</span>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              ${order.items.map(item => `
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                  <span>${item.name} &times; ${item.quantity}</span>
+                  <span style="font-weight: 600;">₹${item.price * item.quantity}</span>
+                </div>
+              `).join('')}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--color-border-subtle); padding-top: 12px; font-size: 0.85rem;">
+              <span style="color: var(--color-text-secondary);">Tracking: <strong>${order.trackingNumber}</strong></span>
+              <span style="font-weight: 700; font-size: 1rem;">Total: ₹${order.total}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Load Address
+      const addrCard = document.getElementById('userAddressCard');
+      if (user.addresses && user.addresses.length > 0) {
+        const a = user.addresses[0];
+        addrCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <strong style="font-size: 0.95rem;">${a.title}</strong>
+            <span style="font-size: 0.75rem; text-transform: uppercase; color: #15803D; font-weight: 700;">Default</span>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6;">
+            ${a.line1}<br>
+            ${a.city}, ${a.state} ${a.pincode}
+          </p>
+        `;
+      } else {
+        addrCard.innerHTML = `
+          <p style="color: var(--color-text-secondary); font-size: 0.9rem;">No saved address on file. Addresses are automatically saved upon checkout.</p>
+        `;
+      }
+    }
+
+    function switchDashboardTab(tab, element) {
+      document.querySelectorAll('.account-nav-link').forEach(l => l.classList.remove('active'));
+      element.classList.add('active');
+
+      document.getElementById('dashPanelOrders').style.display = tab === 'orders' ? 'block' : 'none';
+      document.getElementById('dashPanelAddresses').style.display = tab === 'addresses' ? 'block' : 'none';
+      document.getElementById('dashPanelProfile').style.display = tab === 'profile' ? 'block' : 'none';
+    }
+
+    function saveProfileChanges() {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      user.name = document.getElementById('editUserName').value.trim();
+      user.phone = document.getElementById('editUserPhone').value.trim();
+
+      const users = getUsers();
+      const idx = users.findIndex(u => u.email === user.email);
+      if (idx > -1) {
+        users[idx] = user;
+        localStorage.setItem('stella_users', JSON.stringify(users));
+      }
+
+      setCurrentUser(user);
+      showToast('Profile information updated.');
+      loadDashboardData(user);
+    }
+
+    document.addEventListener('DOMContentLoaded', checkAuthView);
+  </script>
+</body>
+</html>

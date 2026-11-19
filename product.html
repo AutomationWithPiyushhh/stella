@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Stella — Product Detail</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+  <!-- Announcement Bar -->
+  <div class="announcement-bar">
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off &bull; Available on <a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart</a>
+  </div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand-logo" aria-label="The Stella Home">
+        <img src="assets/images/logo.svg" alt="The Stella">
+      </a>
+
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="shop.html" class="nav-link">Collection</a>
+        <a href="shop.html?category=face" class="nav-link">Face</a>
+        <a href="haircare.html" class="nav-link">Haircare</a>
+        <a href="shop.html?category=body" class="nav-link">Body</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="routine-finder.html" class="nav-link">Routine Quiz</a>
+        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+      </nav>
+
+      <div class="header-actions">
+        <span class="header-auth-status" style="font-size: 0.82rem;">
+          <a href="account.html">Account</a>
+        </span>
+
+        <a href="checkout.html" class="btn-icon" aria-label="Shopping Bag">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-dot bag-count-badge">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- PDP Main Container -->
+  <main class="container" style="padding-top: 30px;">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs" id="pdpBreadcrumbs">
+      <a href="index.html">Home</a> &bull; <a href="shop.html">Collection</a> &bull; <span id="breadcrumbCurrent">Product</span>
+    </div>
+
+    <!-- Product View -->
+    <div class="pdp-grid" id="pdpContentGrid">
+      <!-- Media Column -->
+      <div class="pdp-gallery-box">
+        <img id="pdpMainImg" src="" alt="The Stella Product Formulation">
+      </div>
+
+      <!-- Info Column -->
+      <div>
+        <span class="pdp-volume-box" id="pdpBadge">Formula</span>
+        <h1 class="pdp-title" id="pdpTitle">Product Formulation</h1>
+        <div style="font-size: 0.85rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;" id="pdpVolume">
+          30 ml / 1.0 FL. OZ
+        </div>
+
+        <div class="pdp-price-row">
+          <span class="pdp-current-price" id="pdpPrice">₹0</span>
+          <span class="pdp-original-price" id="pdpOriginalPrice">₹0</span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: #15803D; text-transform: uppercase;">In Stock &bull; Ships in 24h</span>
+        </div>
+
+        <p class="pdp-desc" id="pdpDescription">
+          Loading formulation description...
+        </p>
+
+        <!-- Actives Highlight Card -->
+        <div class="pdp-actives-card">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-primary); margin-bottom: 4px;">
+            Key Active Concentrations
+          </div>
+          <div style="font-size: 0.9rem; font-weight: 500; color: var(--color-text-main);" id="pdpActives">
+            Actives
+          </div>
+        </div>
+
+        <!-- Action Row -->
+        <div class="pdp-action-row">
+          <div class="pdp-qty-selector">
+            <button onclick="changePdpQty(-1)" style="font-weight: 700; font-size: 1rem; color: var(--color-text-main);">−</button>
+            <span id="pdpQtyVal" style="font-weight: 600; font-size: 0.9rem; width: 16px; text-align: center;">1</span>
+            <button onclick="changePdpQty(1)" style="font-weight: 700; font-size: 1rem; color: var(--color-text-main);">+</button>
+          </div>
+
+          <button class="btn-minimal btn-minimal-primary" style="flex: 1; padding: 13px;" onclick="addCurrentProductToBag()">
+            Add to Bag
+          </button>
+
+          <button class="btn-minimal btn-minimal-outline" style="padding: 13px 20px;" onclick="instantCheckoutCurrentProduct()">
+            Instant Checkout
+          </button>
+        </div>
+
+        <!-- Flipkart Direct Link -->
+        <div style="margin-bottom: 36px; padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FFFFFF; display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Preferred platform?</span>
+          <a href="https://www.flipkart.com" target="_blank" rel="noopener" style="font-size: 0.82rem; font-weight: 700; color: #2874F0; text-decoration: underline;">
+            Order on Flipkart Official Store
+          </a>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="pdp-tab-nav">
+          <div class="pdp-tab-item active" onclick="switchPdpTab(0)">Application</div>
+          <div class="pdp-tab-item" onclick="switchPdpTab(1)">Full Ingredients</div>
+          <div class="pdp-tab-item" onclick="switchPdpTab(2)">Clinical Efficacy</div>
+        </div>
+
+        <div class="pdp-tab-pane active" id="tab0">
+          <p id="pdpHowToUse">Loading application method...</p>
+        </div>
+
+        <div class="pdp-tab-pane" id="tab1">
+          <p style="font-size: 0.82rem; font-family: monospace; line-height: 1.6;" id="pdpIngredients">Loading full INCI list...</p>
+        </div>
+
+        <div class="pdp-tab-pane" id="tab2">
+          <p>
+            Dermatologically evaluated across 120 participants over a 28-day period. 94% reported noticeable skin brightness and 91% noted deep barrier replenishment without pore congestion. 100% cruelty-free and vegan.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Formulations Section -->
+    <section style="padding: 60px 0 80px 0; border-top: 1px solid var(--color-border-subtle);">
+      <div style="text-align: center; margin-bottom: 36px;">
+        <span class="text-eyebrow">Complementary Care</span>
+        <h2 class="heading-md" style="margin-top: 6px;">Recommended Regimen Additions</h2>
+      </div>
+
+      <div class="catalog-grid" id="relatedProductsGrid">
+        <!-- Rendered by JavaScript -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-main-grid">
+        <div>
+          <a href="index.html" class="brand-logo" style="margin-bottom: 16px;">
+            <img src="assets/images/logo.svg" alt="The Stella">
+          </a>
+          <p style="font-size: 0.88rem; color: var(--color-text-secondary); max-width: 320px; line-height: 1.6;">
+            Nourishing your skin, naturally. Clinical botanical formulations crafted for everyday radiance.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Navigation</h4>
+          <ul class="footer-list">
+            <li><a href="shop.html">All Products</a></li>
+            <li><a href="haircare.html">Curd Haircare</a></li>
+            <li><a href="about.html">About The Stella</a></li>
+            <li><a href="routine-finder.html">Routine Diagnostic</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Portals</h4>
+          <ul class="footer-list">
+            <li><a href="account.html">Customer Sign In / Sign Up</a></li>
+            <li><a href="admin.html">Admin Management Portal</a></li>
+            <li><a href="contact.html">Track Order &amp; Contact</a></li>
+            <li><a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart Storefront</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Assistance</h4>
+          <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6;">
+            Direct inquiries: <a href="mailto:care@thestella.in" style="text-decoration: underline;">care@thestella.in</a>
+          </p>
+          <div style="margin-top: 16px;">
+            <a href="admin.html" class="btn-minimal btn-minimal-outline" style="font-size: 0.72rem; padding: 6px 12px;">Admin Access</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-legal-bar">
+        <div>&copy; 2026 The Stella. All rights reserved.</div>
+        <div>Crafted with clinical intention. Made in India.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    let currentProduct = null;
+    let selectedQty = 1;
+
+    function loadProduct() {
+      const params = new URLSearchParams(window.location.search);
+      const productId = params.get('id') || 'stella-dual-phase';
+      const catalog = getCatalog();
+      currentProduct = catalog.find(p => p.id === productId) || catalog[0];
+
+      // Update page title
+      document.title = `${currentProduct.name} — The Stella`;
+
+      // Update breadcrumb
+      document.getElementById('breadcrumbCurrent').textContent = currentProduct.name;
+
+      // Update fields
+      document.getElementById('pdpMainImg').src = currentProduct.image;
+      document.getElementById('pdpMainImg').alt = currentProduct.name;
+      document.getElementById('pdpBadge').textContent = currentProduct.badge;
+      document.getElementById('pdpTitle').textContent = currentProduct.name;
+      document.getElementById('pdpVolume').textContent = currentProduct.volume;
+      document.getElementById('pdpPrice').textContent = `₹${currentProduct.price}`;
+      document.getElementById('pdpOriginalPrice').textContent = `₹${currentProduct.originalPrice}`;
+      document.getElementById('pdpDescription').textContent = currentProduct.description;
+      document.getElementById('pdpActives').textContent = currentProduct.actives;
+      document.getElementById('pdpHowToUse').textContent = currentProduct.howToUse;
+      document.getElementById('pdpIngredients').textContent = currentProduct.ingredients;
+
+      // Render Related Formulations
+      const related = catalog.filter(p => p.id !== currentProduct.id).slice(0, 3);
+      const relatedGrid = document.getElementById('relatedProductsGrid');
+      if (relatedGrid) {
+        relatedGrid.innerHTML = related.map(p => `
+          <div class="product-tile">
+            <a href="product.html?id=${p.id}" class="product-media-box">
+              <span class="product-badge-subtle">${p.badge}</span>
+              <img src="${p.image}" alt="${p.name}" loading="lazy">
+            </a>
+            <div class="product-content">
+              <span class="product-category-label">${p.category} &bull; ${p.volume}</span>
+              <h3 class="product-name"><a href="product.html?id=${p.id}">${p.name}</a></h3>
+              <p class="product-formula">${p.actives}</p>
+              <div class="product-footer">
+                <div class="product-price-block">
+                  <span class="price-now">₹${p.price}</span>
+                </div>
+                <button class="btn-add-tile" onclick="addToBag('${p.id}')">
+                  Add to Bag
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function changePdpQty(delta) {
+      selectedQty = Math.max(1, selectedQty + delta);
+      document.getElementById('pdpQtyVal').textContent = selectedQty;
+    }
+
+    function addCurrentProductToBag() {
+      if (currentProduct) {
+        addToBag(currentProduct.id, selectedQty);
+      }
+    }
+
+    function instantCheckoutCurrentProduct() {
+      if (currentProduct) {
+        addToBag(currentProduct.id, selectedQty);
+        window.location.href = 'checkout.html';
+      }
+    }
+
+    function switchPdpTab(index) {
+      document.querySelectorAll('.pdp-tab-item').forEach((item, i) => {
+        item.classList.toggle('active', i === index);
+      });
+      document.querySelectorAll('.pdp-tab-pane').forEach((pane, i) => {
+        pane.classList.toggle('active', i === index);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProduct);
+  </script>
+</body>
+</html>
