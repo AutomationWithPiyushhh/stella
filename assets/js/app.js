@@ -14,7 +14,7 @@ const STELLA_CATALOG = [
     originalPrice: 899,
     badge: 'Formula 01',
     actives: '3% Tranexamic Acid • 4% Niacinamide • Vitamin B12',
-    image: 'assets/images/products/dual-phase-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/dual-phase-packshot-YV5jY4gZl6MQnfXA45wiM4f0Y82L86.jpg'
   },
   {
     id: 'stella-bi-phase',
@@ -25,7 +25,7 @@ const STELLA_CATALOG = [
     originalPrice: 799,
     badge: 'Formula 02',
     actives: '2% Polyglutamic Acid • Cica Stem Cell • Bakuchiol',
-    image: 'assets/images/products/bi-phase-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/bi-phase-packshot-hXf7XwL5pv7ugDOA0Vg45vKU8Qa7yy.jpg'
   },
   {
     id: 'stella-dahi-shampoo',
@@ -36,7 +36,7 @@ const STELLA_CATALOG = [
     originalPrice: 599,
     badge: 'Haircare',
     actives: 'Pure Curd Protein • Lactic Acid • Built-in Conditioner',
-    image: 'assets/images/products/dahi-shampoo-clean.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/dahi-shampoo-clean-vCNEZjXkphoa2otEbyZZUwdDnO9m74.jpg'
   },
   {
     id: 'stella-underarm-rollon',
@@ -47,7 +47,7 @@ const STELLA_CATALOG = [
     originalPrice: 399,
     badge: 'UnderGlow',
     actives: '2% Niacinamide • Alpha Arbutin • 0% Aluminum',
-    image: 'assets/images/products/underarm-rollon-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/underarm-rollon-packshot-ZkCK5viBuhw6HvSFzl2vzARajZfmA2.jpg'
   },
   {
     id: 'stella-salicylic-body-wash',
@@ -58,7 +58,7 @@ const STELLA_CATALOG = [
     originalPrice: 649,
     badge: 'Body Care',
     actives: '1% Salicylic Acid • Tea Tree • Cooling Menthol',
-    image: 'assets/images/products/salicylic-body-wash-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/salicylic-body-wash-packshot-dawMRC9uvYrAxhQGCdQys0NB2FPvf8.jpg'
   },
   {
     id: 'stella-papaya-cleanser',
@@ -69,7 +69,7 @@ const STELLA_CATALOG = [
     originalPrice: 449,
     badge: 'Cleanser',
     actives: 'Natural Papain Enzyme • Vitamin E • Micro-Glycolic',
-    image: 'assets/images/products/papaya-facewash-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/papaya-facewash-packshot-7lbLV8fn8WBn2zNXWWVJbhCwyQ5KOl.jpg'
   },
   {
     id: 'stella-vitamin-c',
@@ -80,7 +80,7 @@ const STELLA_CATALOG = [
     originalPrice: 749,
     badge: 'Antioxidant',
     actives: '10% Ethyl Ascorbic Acid • Ferulic Acid • Hyaluronic',
-    image: 'assets/images/products/vitamin-c-serum-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/vitamin-c-serum-packshot-i0XYZLbgFPYhbmg1LpOkGZbySfBPdz.jpg'
   },
   {
     id: 'stella-body-lotion',
@@ -91,7 +91,7 @@ const STELLA_CATALOG = [
     originalPrice: 599,
     badge: 'Nourishment',
     actives: 'Raw Shea Butter • Triple Hyaluronic Acid • Vitamin E',
-    image: 'assets/images/products/bodycare-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/bodycare-packshot-2e0ZN5RpHr3GdQvxrDtl6g8sV502d0.jpg'
   }
 ];
 

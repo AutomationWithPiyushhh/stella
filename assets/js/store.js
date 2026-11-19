@@ -19,7 +19,7 @@ const DEFAULT_CATALOG = [
     description: 'A targeted two-phase clinical formula that combines lipid-soluble Licorice Oil with water-soluble Tranexamic Acid and Niacinamide. Designed to address stubborn hyperpigmentation, melasma, and post-acne marks while maintaining the skin barrier.',
     howToUse: 'Shake vigorously for 4 seconds to emulsify the lipid and water phases. Press 3-4 drops into cleansed face and neck morning and evening. Follow with sunscreen during daylight hours.',
     ingredients: 'Aqua, Tranexamic Acid (3%), Niacinamide (4%), Vitamin B12 (Cyanocobalamin), 4-Butylresorcinol, Glycyrrhiza Glabra (Licorice) Root Extract, Squalane, Glycerin, Sodium Hyaluronate, Tocopherol, Phenoxyethanol.',
-    image: 'assets/images/products/dual-phase-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/dual-phase-packshot-YV5jY4gZl6MQnfXA45wiM4f0Y82L86.jpg'
   },
   {
     id: 'stella-bi-phase',
@@ -34,7 +34,7 @@ const DEFAULT_CATALOG = [
     description: 'A deep moisture-locking formulation featuring botanical Bakuchiol and Rosehip Seed Oil atop an oceanic base of Polyglutamic Acid and Centella Stem Cells. Provides up to 72 hours of cellular hydration and gentle barrier renewal.',
     howToUse: 'Shake well to combine the golden oil and hydrating base. Gently pat 3-4 drops onto damp skin prior to moisturizers.',
     ingredients: 'Rosa Canina (Rosehip) Seed Oil, Bakuchiol (1%), Polyglutamic Acid (2%), Niacinamide (3%), Centella Asiatica Stem Cell Extract, Coco-Caprylate, Sodium Hyaluronate, Panthenol.',
-    image: 'assets/images/products/bi-phase-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/bi-phase-packshot-hXf7XwL5pv7ugDOA0Vg45vKU8Qa7yy.jpg'
   },
   {
     id: 'stella-dahi-shampoo',
@@ -49,7 +49,7 @@ const DEFAULT_CATALOG = [
     description: 'Restores scalp balance through bio-fermented curd proteins and mild lactic acid exfoliation. Clarifies flake accumulation, relieves itchiness, and smooths hair cuticles without drying sulfates.',
     howToUse: 'Massage thoroughly into wet scalp and lengths. Allow active proteins to penetrate for 2 minutes before rinsing with cool water. Conditioner built-in.',
     ingredients: 'Purified Water, Hydrolyzed Curd Protein, Sodium Cocoyl Isethionate, Lactic Acid, Biotin, D-Panthenol, Hydrolyzed Keratin, Aloe Barbadensis Leaf Juice, Argania Spinosa Kernel Oil.',
-    image: 'assets/images/products/dahi-shampoo-clean.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/dahi-shampoo-clean-vCNEZjXkphoa2otEbyZZUwdDnO9m74.jpg'
   },
   {
     id: 'stella-underarm-rollon',
@@ -64,7 +64,7 @@ const DEFAULT_CATALOG = [
     description: 'Non-irritating, aluminum-free underarm therapy designed to gradually lighten post-friction and shaving discoloration while neutralizing odor-causing bacteria for 48 hours.',
     howToUse: 'Glide evenly over clean, dry underarms daily. Allow 30 seconds to absorb before dressing.',
     ingredients: 'Aqua, Niacinamide (2%), Alpha Arbutin (1%), Licorice Extract, Chamomile Flower Water, Witch Hazel, Zinc Ricinoleate, Allantoin.',
-    image: 'assets/images/products/underarm-rollon-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/underarm-rollon-packshot-ZkCK5viBuhw6HvSFzl2vzARajZfmA2.jpg'
   },
   {
     id: 'stella-salicylic-body-wash',
@@ -79,7 +79,7 @@ const DEFAULT_CATALOG = [
     description: 'Dissolves trapped dead skin cells and excess sebum in pores across the back, chest, and arms. Helps clear body blemishes, rough strawberry texture, and ingrown hairs.',
     howToUse: 'Lather over wet body skin using hands or a gentle cloth. Focus on blemish-prone areas for 60 seconds before rinsing.',
     ingredients: 'Purified Water, Salicylic Acid (1%), Melaleuca Alternifolia (Tea Tree) Leaf Oil, Aloe Barbadensis Leaf Extract, Cocamidopropyl Betaine, Glycerin, Menthol.',
-    image: 'assets/images/products/salicylic-body-wash-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/salicylic-body-wash-packshot-dawMRC9uvYrAxhQGCdQys0NB2FPvf8.jpg'
   },
   {
     id: 'stella-papaya-cleanser',
@@ -94,7 +94,7 @@ const DEFAULT_CATALOG = [
     description: 'Enzyme-based gentle foaming cleanser that dissolves dull surface keratin without stripping essential moisture. Promotes a smooth, clarified complexion.',
     howToUse: 'Work a small amount into lather with water. Gently massage across damp skin for 45 seconds, then rinse.',
     ingredients: 'Aqua, Carica Papaya Fruit Extract, Tocopheryl Acetate (Vitamin E), Sodium Lauroyl Sarcosinate, Cocamidopropyl Betaine, Glycolic Acid, Glycerin.',
-    image: 'assets/images/products/papaya-facewash-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/papaya-facewash-packshot-7lbLV8fn8WBn2zNXWWVJbhCwyQ5KOl.jpg'
   },
   {
     id: 'stella-vitamin-c',
@@ -109,7 +109,7 @@ const DEFAULT_CATALOG = [
     description: 'A stabilized morning antioxidant solution that shields against daily environmental stressors, supports collagen density, and promotes overall skin luminosity.',
     howToUse: 'Apply 3-4 drops each morning to clean face and neck before moisturizer and sunscreen.',
     ingredients: 'Aqua, 3-O-Ethyl Ascorbic Acid (10%), Ferulic Acid (0.5%), Sodium Hyaluronate, Citrus Aurantium Dulcis Peel Oil, Phenoxyethanol.',
-    image: 'assets/images/products/vitamin-c-serum-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/vitamin-c-serum-packshot-i0XYZLbgFPYhbmg1LpOkGZbySfBPdz.jpg'
   },
   {
     id: 'stella-body-lotion',
@@ -124,7 +124,7 @@ const DEFAULT_CATALOG = [
     description: 'A velvet lipid-replenishing body treatment designed for dry, flake-prone skin. Leaves an unnoticeable, non-sticky satin veil that locks in moisture all day.',
     howToUse: 'Smooth generously over the body immediately after showering while skin is slightly damp.',
     ingredients: 'Aqua, Butyrospermum Parkii (Shea) Butter, Hyaluronic Acid Complex, Prunus Amygdalus Dulcis (Sweet Almond) Oil, Tocopherol, Cetearyl Alcohol.',
-    image: 'assets/images/products/bodycare-packshot.jpg'
+    image: 'https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/bodycare-packshot-2e0ZN5RpHr3GdQvxrDtl6g8sV502d0.jpg'
   }
 ];
 
