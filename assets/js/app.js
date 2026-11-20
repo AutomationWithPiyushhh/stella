@@ -37,7 +37,7 @@ const route = getCurrentRoute();
 updateActiveNav(route);
 updateHeaderBagBadge();
 updateHeaderAuthUI();
-const container = document.getElementById('appView');
+const container = document.getElementById('appView') || document.getElementById('app-root');
 const footer = document.getElementById('siteFooter');
 // Adjust footer visibility
 if (route === 'admin') {
@@ -424,7 +424,7 @@ Instant Checkout
 </div>
 <div style="margin-bottom: 36px; padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FFFFFF; display: flex; align-items: center; justify-content: space-between;">
 <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Preferred platform?</span>
-<a href="https://www.flipkart.com" target="_blank" rel="noopener" style="font-size: 0.82rem; font-weight: 700; color: #2874F0; text-decoration: underline;">
+<a href="https://www.flipkart.com/search?q=thestella" target="_blank" rel="noopener" style="font-size: 0.82rem; font-weight: 700; color: #2874F0; text-decoration: underline;">
 Order on Flipkart Official Store
 </a>
 </div>
@@ -805,6 +805,262 @@ let checkoutDiscount = 0;
 let appliedPromoCode = '';
 let selectedCheckoutPaymentMethod = 'razorpay';
 
+// ==========================================
+// PINCODE AUTO-LOOKUP ENGINE & ADDRESS HANDLING
+// ==========================================
+const pincodeDetailsCache = {};
+let pincodeDebounceTimer = null;
+
+// Built-in fallback dictionary for major Indian postal regions
+const METRO_PIN_FALLBACKS = {
+  '400': { city: 'Mumbai', state: 'Maharashtra' },
+  '411': { city: 'Pune', state: 'Maharashtra' },
+  '380': { city: 'Ahmedabad', state: 'Gujarat' },
+  '395': { city: 'Surat', state: 'Gujarat' },
+  '390': { city: 'Vadodara', state: 'Gujarat' },
+  '360': { city: 'Rajkot', state: 'Gujarat' },
+  '110': { city: 'New Delhi', state: 'Delhi' },
+  '560': { city: 'Bengaluru', state: 'Karnataka' },
+  '600': { city: 'Chennai', state: 'Tamil Nadu' },
+  '700': { city: 'Kolkata', state: 'West Bengal' },
+  '500': { city: 'Hyderabad', state: 'Telangana' },
+  '302': { city: 'Jaipur', state: 'Rajasthan' },
+  '201': { city: 'Noida / Ghaziabad', state: 'Uttar Pradesh' },
+  '122': { city: 'Gurugram', state: 'Haryana' },
+  '160': { city: 'Chandigarh', state: 'Chandigarh' },
+  '682': { city: 'Kochi', state: 'Kerala' },
+  '452': { city: 'Indore', state: 'Madhya Pradesh' },
+  '462': { city: 'Bhopal', state: 'Madhya Pradesh' },
+  '800': { city: 'Patna', state: 'Bihar' },
+  '226': { city: 'Lucknow', state: 'Uttar Pradesh' },
+  '781': { city: 'Guwahati', state: 'Assam' }
+};
+
+function handlePincodeInput(val) {
+  const clean = (val || '').replace(/\D/g, '').slice(0, 6);
+  const pinInput = document.getElementById('chkPin');
+  if (pinInput && pinInput.value !== clean) {
+    pinInput.value = clean;
+  }
+
+  const badge = document.getElementById('pincodeStatusBadge');
+  const text = document.getElementById('pincodeStatusText');
+  const localityContainer = document.getElementById('pincodeLocalityContainer');
+
+  if (clean.length < 6) {
+    if (badge) badge.style.display = 'none';
+    if (text) {
+      text.style.color = 'var(--color-text-secondary)';
+      text.textContent = 'Enter 6-digit PIN code to auto-detect City and State.';
+    }
+    if (localityContainer) localityContainer.style.display = 'none';
+    return;
+  }
+
+  clearTimeout(pincodeDebounceTimer);
+  pincodeDebounceTimer = setTimeout(() => {
+    fetchPincodeDetails(clean);
+  }, 200);
+}
+
+async function fetchPincodeDetails(pin) {
+  const badge = document.getElementById('pincodeStatusBadge');
+  const text = document.getElementById('pincodeStatusText');
+  const spinner = document.getElementById('pincodeSpinner');
+  const cityInput = document.getElementById('chkCity');
+  const stateInput = document.getElementById('chkState');
+  const localityContainer = document.getElementById('pincodeLocalityContainer');
+  const localityPills = document.getElementById('pincodeLocalityPills');
+
+  // Check in-memory cache
+  if (pincodeDetailsCache[pin]) {
+    applyPincodeData(pincodeDetailsCache[pin]);
+    return;
+  }
+
+  // Show loading feedback
+  if (spinner) spinner.style.display = 'block';
+  if (badge) {
+    badge.style.display = 'inline-block';
+    badge.style.background = '#F3F4F6';
+    badge.style.color = '#4B5563';
+    badge.textContent = 'Detecting city & state...';
+  }
+  if (text) {
+    text.style.color = 'var(--color-text-secondary)';
+    text.textContent = `Looking up postal records for PIN ${pin}...`;
+  }
+
+  let resolvedData = null;
+
+  // 1. Primary: India Post Open Postal Pincode API
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data[0] && data[0].Status === 'Success' && Array.isArray(data[0].PostOffice) && data[0].PostOffice.length > 0) {
+        const poList = data[0].PostOffice;
+        const primaryPo = poList[0];
+        const district = primaryPo.District || primaryPo.Division || primaryPo.Block || '';
+        const state = primaryPo.State || '';
+        const localities = poList.map(po => po.Name).filter(Boolean);
+
+        resolvedData = {
+          city: district,
+          state: state,
+          localities: Array.from(new Set(localities))
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("India Post API lookup notice:", err);
+  }
+
+  // 2. Secondary fallback: Zippopotam
+  if (!resolvedData) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const res = await fetch(`https://api.zippopotam.us/IN/${pin}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.places && data.places.length > 0) {
+          const place = data.places[0];
+          resolvedData = {
+            city: place['place name'] || '',
+            state: place['state'] || '',
+            localities: data.places.map(p => p['place name']).filter(Boolean)
+          };
+        }
+      }
+    } catch (err) {
+      console.warn("Zippopotam lookup notice:", err);
+    }
+  }
+
+  // 3. Tertiary fallback: Metro prefix fallback dictionary
+  if (!resolvedData) {
+    const prefix3 = pin.slice(0, 3);
+    if (METRO_PIN_FALLBACKS[prefix3]) {
+      resolvedData = {
+        city: METRO_PIN_FALLBACKS[prefix3].city,
+        state: METRO_PIN_FALLBACKS[prefix3].state,
+        localities: []
+      };
+    }
+  }
+
+  // Hide loading spinner
+  if (spinner) spinner.style.display = 'none';
+
+  if (resolvedData && resolvedData.city && resolvedData.state) {
+    pincodeDetailsCache[pin] = resolvedData;
+    applyPincodeData(resolvedData);
+  } else {
+    // PIN code could not be detected: enable manual entry
+    if (badge) {
+      badge.style.display = 'inline-block';
+      badge.style.background = '#FEF3C7';
+      badge.style.color = '#B45309';
+      badge.textContent = 'Manual Entry';
+    }
+    if (text) {
+      text.style.color = '#B45309';
+      text.textContent = 'Details not found automatically for this PIN code. Please enter City and State manually.';
+    }
+    toggleManualCityStateEdit(false);
+  }
+}
+
+function applyPincodeData(data) {
+  const badge = document.getElementById('pincodeStatusBadge');
+  const text = document.getElementById('pincodeStatusText');
+  const cityInput = document.getElementById('chkCity');
+  const stateInput = document.getElementById('chkState');
+  const localityContainer = document.getElementById('pincodeLocalityContainer');
+  const localityPills = document.getElementById('pincodeLocalityPills');
+  const address1 = document.getElementById('chkAddress1');
+
+  if (cityInput) {
+    cityInput.value = data.city;
+    cityInput.readOnly = true;
+    cityInput.style.background = '#F9F9F8';
+  }
+  if (stateInput) {
+    stateInput.value = data.state;
+    stateInput.readOnly = true;
+    stateInput.style.background = '#F9F9F8';
+  }
+
+  if (badge) {
+    badge.style.display = 'inline-block';
+    badge.style.background = '#ECFDF5';
+    badge.style.color = '#047857';
+    badge.textContent = `✓ ${data.city}, ${data.state}`;
+  }
+  if (text) {
+    text.style.color = '#047857';
+    text.textContent = `Recognized: ${data.city}, ${data.state}. Now enter Address Line 1 and 2 below.`;
+  }
+
+  // Populate localities pills if available
+  if (localityContainer && localityPills) {
+    if (data.localities && data.localities.length > 0) {
+      localityPills.innerHTML = data.localities.slice(0, 6).map(loc => `
+        <button type="button" onclick="selectLocality('${loc.replace(/'/g, "\\'")}')" style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-pill); font-size: 0.74rem; padding: 3px 10px; cursor: pointer; color: var(--color-text-main); transition: all 0.15s ease;" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='var(--color-border)'">
+          + ${loc}
+        </button>
+      `).join('');
+      localityContainer.style.display = 'block';
+    } else {
+      localityContainer.style.display = 'none';
+    }
+  }
+
+  // Smoothly focus on Address Line 1 if it's currently empty
+  if (address1 && !address1.value.trim()) {
+    setTimeout(() => {
+      address1.focus();
+    }, 100);
+  }
+}
+
+function selectLocality(locName) {
+  const addr2 = document.getElementById('chkAddress2');
+  if (addr2) {
+    if (addr2.value.trim()) {
+      if (!addr2.value.toLowerCase().includes(locName.toLowerCase())) {
+        addr2.value = `${addr2.value}, ${locName}`;
+      }
+    } else {
+      addr2.value = locName;
+    }
+    showToast(`Added "${locName}" to Address Line 2.`);
+  }
+}
+
+function toggleManualCityStateEdit(showToastMessage = true) {
+  const cityInput = document.getElementById('chkCity');
+  const stateInput = document.getElementById('chkState');
+  const btn = document.getElementById('btnEditCityState');
+  if (cityInput && stateInput) {
+    cityInput.readOnly = false;
+    stateInput.readOnly = false;
+    cityInput.style.background = '#FFFFFF';
+    stateInput.style.background = '#FFFFFF';
+    cityInput.focus();
+    if (btn) btn.style.display = 'none';
+    if (showToastMessage) showToast("City & State unlocked for manual editing.");
+  }
+}
+
+
 function loadRazorpaySdk() {
   return new Promise((resolve) => {
     if (window.Razorpay) {
@@ -887,7 +1143,34 @@ function renderCheckoutView(el) {
       defaultPhone = p.replace(/\D/g, '');
     }
   }
-  const defaultAddress = currentUser ? (currentUser.address || '') : '';
+  // Extract default address components if user has saved addresses or single address string
+  let defaultPin = '';
+  let defaultAddress1 = '';
+  let defaultAddress2 = '';
+  let defaultCity = '';
+  let defaultState = '';
+
+  if (currentUser && currentUser.addresses && currentUser.addresses.length > 0) {
+    const primaryAddr = currentUser.addresses.find(a => a.isDefault) || currentUser.addresses[0];
+    defaultPin = primaryAddr.pincode || '';
+    defaultAddress1 = primaryAddr.line1 || '';
+    defaultAddress2 = primaryAddr.line2 || '';
+    defaultCity = primaryAddr.city || '';
+    defaultState = primaryAddr.state || '';
+  } else if (currentUser && currentUser.address) {
+    const parts = currentUser.address.split(',').map(s => s.trim()).filter(Boolean);
+    const pinMatch = currentUser.address.match(/\b\d{6}\b/);
+    if (pinMatch) {
+      defaultPin = pinMatch[0];
+    }
+    if (parts.length >= 3) {
+      defaultAddress1 = parts[0] + (parts[1] ? ', ' + parts[1] : '');
+      defaultAddress2 = parts.length > 3 ? parts[2] : '';
+    } else {
+      defaultAddress1 = parts[0] || '';
+      defaultAddress2 = parts[1] || '';
+    }
+  }
 
   let shipping = subtotal >= 499 || subtotal === 0 ? 0 : 70;
   let discountAmount = 0;
@@ -943,12 +1226,12 @@ function renderCheckoutView(el) {
             </div>
             
             <div style="margin-bottom: 14px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Full Recipient Name</label>
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Full Recipient Name *</label>
               <input type="text" id="chkName" placeholder="Enter recipient full name" class="form-input" value="${defaultName}">
             </div>
 
-            <div style="margin-bottom: 14px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Mobile Contact for Delivery Updates</label>
+            <div style="margin-bottom: 18px;">
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Mobile Contact for Delivery Updates *</label>
               <div style="display: grid; grid-template-columns: 120px 1fr; gap: 10px;">
                 <select id="chkCountryCode" class="form-input" style="padding: 10px 8px; font-size: 0.88rem; background: #FFFFFF;">
                   <option value="+91" ${defaultCountryCode === '+91' ? 'selected' : ''}>+91 (India)</option>
@@ -958,28 +1241,60 @@ function renderCheckoutView(el) {
                   <option value="+65" ${defaultCountryCode === '+65' ? 'selected' : ''}>+65 (SG)</option>
                   <option value="+61" ${defaultCountryCode === '+61' ? 'selected' : ''}>+61 (AU)</option>
                 </select>
-                <input type="tel" id="chkPhone" placeholder="10-digit mobile number" class="form-input" maxlength="10" value="${defaultPhone}">
+                <input type="tel" id="chkPhone" placeholder="10-digit mobile number" class="form-input" maxlength="10" inputmode="numeric" value="${defaultPhone}">
               </div>
+            </div>
+
+            <!-- PIN Code with Instant Auto-Lookup -->
+            <div style="margin-bottom: 14px; background: #FAF9F8; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0;">PIN Code (Postal Code) *</label>
+                <span id="pincodeStatusBadge" style="font-size: 0.72rem; display: none;"></span>
+              </div>
+              <div style="position: relative;">
+                <input type="text" id="chkPin" placeholder="Enter 6-digit PIN code (e.g. 400050 or 380015)" class="form-input" maxlength="6" inputmode="numeric" value="${defaultPin}" oninput="handlePincodeInput(this.value)" style="font-size: 0.95rem; font-weight: 600; letter-spacing: 0.06em; background: #FFFFFF;">
+                <div id="pincodeSpinner" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); display: none;">
+                  <svg class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+                  </svg>
+                </div>
+              </div>
+              <div id="pincodeStatusText" style="font-size: 0.76rem; color: var(--color-text-secondary); margin-top: 6px; line-height: 1.4;">
+                Enter 6-digit PIN code to auto-detect City and State.
+              </div>
+
+              <!-- Available Localities / Post Offices container -->
+              <div id="pincodeLocalityContainer" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--color-border);">
+                <div style="font-size: 0.72rem; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; margin-bottom: 6px;">Recognized Localities / Post Offices:</div>
+                <div id="pincodeLocalityPills" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+              </div>
+            </div>
+
+            <!-- Auto-Populated City & State -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0;">City / District *</label>
+                  <button type="button" id="btnEditCityState" onclick="toggleManualCityStateEdit()" style="background: none; border: none; font-size: 0.72rem; color: var(--color-primary); cursor: pointer; text-decoration: underline; padding: 0;">Edit manually</button>
+                </div>
+                <input type="text" id="chkCity" placeholder="Auto-detected from PIN" class="form-input" value="${defaultCity}" style="background: #F9F9F8;" readonly>
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">State *</label>
+                <input type="text" id="chkState" placeholder="Auto-detected from PIN" class="form-input" value="${defaultState}" style="background: #F9F9F8;" readonly>
+              </div>
+            </div>
+
+            <!-- User only fills Address Line 1 and Address Line 2 -->
+            <div style="margin-bottom: 14px;">
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Address Line 1 (Flat, House No., Building Name) *</label>
+              <input type="text" id="chkAddress1" placeholder="e.g. Flat 402, Building A, Crystal Heights" class="form-input" value="${defaultAddress1}">
             </div>
 
             <div style="margin-bottom: 14px;">
-              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Street Address</label>
-              <input type="text" id="chkAddress" placeholder="Flat, Floor, House Name, Street & Landmark" class="form-input" value="${defaultAddress}">
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
-              <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">City</label>
-                <input type="text" id="chkCity" placeholder="City" class="form-input" value="Mumbai">
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">State</label>
-                <input type="text" id="chkState" placeholder="State" class="form-input" value="Maharashtra">
-              </div>
-              <div>
-                <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">PIN Code</label>
-                <input type="text" id="chkPin" placeholder="6 digits" class="form-input" maxlength="6" value="400050">
-              </div>
+              <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Address Line 2 (Street, Area, Landmark) <span style="font-weight: 400; text-transform: none; color: var(--color-text-secondary);">(Optional)</span></label>
+              <input type="text" id="chkAddress2" placeholder="e.g. Diamond Avenue, Near Grand Mall" class="form-input" value="${defaultAddress2}">
             </div>
           </div>
 
@@ -1096,6 +1411,13 @@ function renderCheckoutView(el) {
       <div id="confirmedOrderArea" style="display: none; margin-top: 30px;"></div>
     </div>
   `;
+
+  // Auto-trigger PIN lookup if defaultPin exists
+  if (defaultPin && defaultPin.length === 6) {
+    setTimeout(() => {
+      fetchPincodeDetails(defaultPin);
+    }, 50);
+  }
 }
 
 function applyPromo() {
@@ -1155,10 +1477,11 @@ async function executeCheckoutPayment(grandTotal) {
   const recipientName = document.getElementById('chkName')?.value.trim();
   const countryCode = document.getElementById('chkCountryCode')?.value.trim() || '+91';
   const rawPhone = document.getElementById('chkPhone')?.value.trim().replace(/\D/g, '');
-  const street = document.getElementById('chkAddress')?.value.trim();
+  const pin = document.getElementById('chkPin')?.value.trim().replace(/\D/g, '');
+  const line1 = document.getElementById('chkAddress1')?.value.trim();
+  const line2 = document.getElementById('chkAddress2')?.value.trim();
   const city = document.getElementById('chkCity')?.value.trim();
   const state = document.getElementById('chkState')?.value.trim();
-  const pin = document.getElementById('chkPin')?.value.trim();
 
   if (!recipientName) {
     showToast("Please provide the full recipient name.");
@@ -1170,24 +1493,30 @@ async function executeCheckoutPayment(grandTotal) {
     document.getElementById('chkPhone')?.focus();
     return;
   }
-  if (!street) {
-    showToast("Please enter complete delivery street address.");
-    document.getElementById('chkAddress')?.focus();
-    return;
-  }
-  if (!city) {
-    showToast("Please enter destination city.");
-    document.getElementById('chkCity')?.focus();
-    return;
-  }
-  if (!pin || pin.length < 6) {
+  if (!pin || pin.length !== 6) {
     showToast("Please enter a valid 6-digit PIN code.");
     document.getElementById('chkPin')?.focus();
     return;
   }
+  if (!city) {
+    showToast("Please provide destination city (click 'Edit manually' if needed).");
+    document.getElementById('chkCity')?.focus();
+    return;
+  }
+  if (!state) {
+    showToast("Please provide destination state.");
+    document.getElementById('chkState')?.focus();
+    return;
+  }
+  if (!line1) {
+    showToast("Please enter Address Line 1 (Flat, House no., Building).");
+    document.getElementById('chkAddress1')?.focus();
+    return;
+  }
 
   const fullPhone = `${countryCode} ${rawPhone}`;
-  const fullAddress = [street, city, state, pin].filter(Boolean).join(', ');
+  const streetParts = [line1, line2].filter(Boolean).join(', ');
+  const fullAddress = [streetParts, city, state, pin].filter(Boolean).join(', ');
   const orderId = 'STL-' + Math.floor(10000 + Math.random() * 90000);
   const currentUser = getCurrentUser();
 
@@ -1500,6 +1829,10 @@ function finalizeOrderReceipt(params) {
   }
 
   saveOrder(orderObj);
+  if (currentUser) {
+    currentUser.address = params.fullAddress;
+    setCurrentUser(currentUser);
+  }
   saveBag([]); // Clear bag
   updateHeaderBagBadge();
 
@@ -2638,6 +2971,10 @@ function submitInquiry() {
 }
 
 // Initialize SPA on load
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCurrentRoute();
+  });
+} else {
   renderCurrentRoute();
-});
+}

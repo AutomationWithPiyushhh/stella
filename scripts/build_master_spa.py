@@ -20,7 +20,7 @@ spa_html = """<!DOCTYPE html>
 
   <!-- Minimalist Announcement -->
   <div class="announcement-bar">
-    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off &bull; Available on <a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart</a>
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off &bull; Available on <a href="https://www.flipkart.com/search?q=thestella" target="_blank" rel="noopener">Flipkart</a>
   </div>
 
   <!-- Header -->
@@ -38,7 +38,7 @@ spa_html = """<!DOCTYPE html>
         <a href="shop.html?category=body" class="nav-link" id="nav-body" onclick="spaNavigate(event, 'shop.html?category=body')">Body</a>
         <a href="about.html" class="nav-link" id="nav-about" onclick="spaNavigate(event, 'about.html')">About</a>
         <a href="routine-finder.html" class="nav-link" id="nav-quiz" onclick="spaNavigate(event, 'routine-finder.html')">Routine Quiz</a>
-        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+        <a href="https://www.flipkart.com/search?q=thestella" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
       </nav>
 
       <div class="header-actions">
@@ -98,7 +98,7 @@ spa_html = """<!DOCTYPE html>
             <li><a href="account.html" onclick="spaNavigate(event, 'account.html')">Customer Sign In / Sign Up</a></li>
             <li><a href="admin.html" onclick="spaNavigate(event, 'admin.html')">Admin Management Portal</a></li>
             <li><a href="contact.html" onclick="spaNavigate(event, 'contact.html')">Track Order & Contact</a></li>
-            <li><a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart Storefront</a></li>
+            <li><a href="https://www.flipkart.com/search?q=thestella" target="_blank" rel="noopener">Flipkart Storefront</a></li>
           </ul>
         </div>
 
@@ -602,7 +602,7 @@ spa_html = """<!DOCTYPE html>
 
               <div style="margin-bottom: 36px; padding: 14px 18px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: #FFFFFF; display: flex; align-items: center; justify-content: space-between;">
                 <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Preferred platform?</span>
-                <a href="https://www.flipkart.com" target="_blank" rel="noopener" style="font-size: 0.82rem; font-weight: 700; color: #2874F0; text-decoration: underline;">
+                <a href="https://www.flipkart.com/search?q=thestella" target="_blank" rel="noopener" style="font-size: 0.82rem; font-weight: 700; color: #2874F0; text-decoration: underline;">
                   Order on Flipkart Official Store
                 </a>
               </div>
