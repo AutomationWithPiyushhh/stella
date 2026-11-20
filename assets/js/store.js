@@ -230,6 +230,150 @@ function setCurrentUser(user) {
   updateHeaderAuthUI();
 }
 
+// 3.1 Saved Addresses Store (Flipkart / Amazon Multi-Address Management)
+function getSavedAddresses() {
+  const currentUser = getCurrentUser();
+  let list = [];
+
+  if (currentUser && Array.isArray(currentUser.addresses) && currentUser.addresses.length > 0) {
+    list = currentUser.addresses;
+  } else {
+    const stored = localStorage.getItem('stella_saved_addresses');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) list = parsed;
+      } catch (e) {}
+    }
+  }
+
+  // Handle single address legacy fallback if array is empty
+  if (list.length === 0 && currentUser && currentUser.address) {
+    const pinMatch = currentUser.address.match(/\b\d{6}\b/);
+    list = [{
+      id: 'addr_default',
+      name: currentUser.name || '',
+      phone: currentUser.phone ? currentUser.phone.replace(/\D/g, '').slice(-10) : '',
+      countryCode: '+91',
+      pincode: pinMatch ? pinMatch[0] : '',
+      city: '',
+      state: '',
+      address1: currentUser.address,
+      address2: '',
+      type: 'Home',
+      isDefault: true
+    }];
+  }
+
+  // Normalize structure
+  return list.map((a, idx) => ({
+    id: a.id || `addr_${idx + 1}`,
+    name: a.name || (currentUser ? currentUser.name : ''),
+    phone: (a.phone || (currentUser ? (currentUser.phone || '') : '')).replace(/\D/g, '').slice(-10),
+    countryCode: a.countryCode || '+91',
+    pincode: (a.pincode || '').replace(/\D/g, '').slice(0, 6),
+    city: a.city || '',
+    state: a.state || '',
+    address1: a.address1 || a.line1 || '',
+    address2: a.address2 || a.line2 || '',
+    type: a.type || a.title || 'Home',
+    isDefault: Boolean(a.isDefault || idx === 0)
+  }));
+}
+
+function saveUserAddress(newAddr) {
+  let addresses = getSavedAddresses();
+
+  if (!newAddr.id) {
+    newAddr.id = 'addr_' + Date.now() + '_' + Math.floor(100 + Math.random() * 900);
+  }
+
+  // Ensure default state
+  if (newAddr.isDefault || addresses.length === 0) {
+    newAddr.isDefault = true;
+    addresses.forEach(a => { if (a.id !== newAddr.id) a.isDefault = false; });
+  }
+
+  const existingIdx = addresses.findIndex(a => a.id === newAddr.id);
+  if (existingIdx >= 0) {
+    addresses[existingIdx] = Object.assign({}, addresses[existingIdx], newAddr);
+  } else {
+    addresses.unshift(newAddr);
+  }
+
+  localStorage.setItem('stella_saved_addresses', JSON.stringify(addresses));
+
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    currentUser.addresses = addresses;
+    const def = addresses.find(a => a.isDefault) || addresses[0];
+    if (def) {
+      currentUser.address = [def.address1, def.address2, def.city, def.state, def.pincode].filter(Boolean).join(', ');
+    }
+    setCurrentUser(currentUser);
+
+    const users = getUsers();
+    const uIdx = users.findIndex(u => u.id === currentUser.id || u.email === currentUser.email);
+    if (uIdx >= 0) {
+      users[uIdx].addresses = addresses;
+      users[uIdx].address = currentUser.address;
+      localStorage.setItem('stella_users', JSON.stringify(users));
+    }
+
+    // Cloud Firestore Sync if available
+    if (window.StellaFirebase && window.StellaFirebase.db && currentUser.id) {
+      if (window.firebase && window.firebase.firestore) {
+        window.firebase.firestore().collection('users').doc(currentUser.id).set({
+          addresses: addresses,
+          address: currentUser.address
+        }, { merge: true }).catch(() => {});
+      }
+    }
+  }
+
+  return newAddr;
+}
+
+function deleteUserAddress(addrId) {
+  let addresses = getSavedAddresses().filter(a => a.id !== addrId);
+  if (addresses.length > 0 && !addresses.some(a => a.isDefault)) {
+    addresses[0].isDefault = true;
+  }
+  localStorage.setItem('stella_saved_addresses', JSON.stringify(addresses));
+
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    currentUser.addresses = addresses;
+    setCurrentUser(currentUser);
+    const users = getUsers();
+    const uIdx = users.findIndex(u => u.id === currentUser.id || u.email === currentUser.email);
+    if (uIdx >= 0) {
+      users[uIdx].addresses = addresses;
+      localStorage.setItem('stella_users', JSON.stringify(users));
+    }
+  }
+  return addresses;
+}
+
+function setDefaultUserAddress(addrId) {
+  let addresses = getSavedAddresses();
+  addresses.forEach(a => {
+    a.isDefault = (a.id === addrId);
+  });
+  localStorage.setItem('stella_saved_addresses', JSON.stringify(addresses));
+
+  const currentUser = getCurrentUser();
+  if (currentUser) {
+    currentUser.addresses = addresses;
+    const def = addresses.find(a => a.isDefault) || addresses[0];
+    if (def) {
+      currentUser.address = [def.address1, def.address2, def.city, def.state, def.pincode].filter(Boolean).join(', ');
+    }
+    setCurrentUser(currentUser);
+  }
+  return addresses;
+}
+
 // 4. Admin Authentication Store
 const ADMIN_CREDENTIALS = {
   email: 'admin@thestella.in',
