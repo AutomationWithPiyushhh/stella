@@ -9,6 +9,6 @@ export default function handler(req, res) {
 
   // Return public Key ID only - never expose KEY_SECRET
   return res.status(200).json({
-    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_U2MEsqbiNgtArA'
+    key_id: process.env.RAZORPAY_KEY_ID || 'rzp_live_U2Nb9Nn5yOhCQj'
   });
 }

@@ -27,8 +27,8 @@ def load_env(env_path='.env'):
 
 load_env()
 
-RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_U2MEsqbiNgtArA')
-RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'G3uGiOwCkVbnbL5IO0xkvOZI')
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_live_U2Nb9Nn5yOhCQj')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '1nBYlU5iSwYUneYYvU4Ws3Ov')
 
 # Initialize Razorpay Client if SDK available
 try:

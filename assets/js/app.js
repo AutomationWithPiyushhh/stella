@@ -1205,7 +1205,7 @@ async function executeCheckoutPayment(grandTotal) {
     }
 
     // Step 2: Open Razorpay Modal with Backend Order ID
-    const activeKey = orderData.key_id || localStorage.getItem('stella_razorpay_key') || 'rzp_test_U2MEsqbiNgtArA';
+    const activeKey = orderData.key_id || localStorage.getItem('stella_razorpay_key') || 'rzp_live_U2Nb9Nn5yOhCQj';
     const options = {
       key: activeKey,
       amount: orderData.amount,
@@ -2420,12 +2420,12 @@ ${catalog.map(prod => `
     <span style="background: #ECFDF5; color: #047857; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-pill);">Active Gateway</span>
   </div>
   <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 16px; line-height: 1.6;">
-    Configure your Razorpay Key ID for processing UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, and NetBanking. The store defaults to Razorpay standard test mode (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_test_U2MEsqbiNgtArA</code>). Paste your live key (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_live_...</code>) when transitioning to production.
+    Configure your Razorpay Key ID for processing UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, and NetBanking. The store is configured with your live Razorpay Production Key (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_live_U2Nb9Nn5yOhCQj</code>).
   </p>
   <div style="display: flex; gap: 12px; align-items: flex-end; max-width: 600px;">
     <div style="flex: 1;">
       <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Razorpay Key ID</label>
-      <input type="text" id="adminRzpKey" class="form-input" style="font-family: monospace; font-size: 0.88rem;" value="${localStorage.getItem('stella_razorpay_key') || 'rzp_test_U2MEsqbiNgtArA'}">
+      <input type="text" id="adminRzpKey" class="form-input" style="font-family: monospace; font-size: 0.88rem;" value="${localStorage.getItem('stella_razorpay_key') || 'rzp_live_U2Nb9Nn5yOhCQj'}">
     </div>
     <button class="btn-minimal btn-minimal-primary" style="padding: 11px 20px;" onclick="saveAdminRzpKey()">Save Gateway Key</button>
   </div>
