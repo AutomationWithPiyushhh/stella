@@ -1,0 +1,13 @@
+{
+  "name": "the-stella",
+  "version": "1.0.0",
+  "description": "The Stella — Luxury Botanical Skincare with Razorpay Standard Checkout",
+  "type": "module",
+  "scripts": {
+    "start": "python3 server.py",
+    "dev": "python3 server.py"
+  },
+  "dependencies": {
+    "razorpay": "^2.9.5"
+  }
+}

@@ -1165,7 +1165,6 @@ async function executeCheckoutPayment(grandTotal) {
 
   // If Razorpay Online Payment
   if (selectedCheckoutPaymentMethod === 'razorpay') {
-    const rzpKey = localStorage.getItem('stella_razorpay_key') || 'rzp_test_1DP5mmOlF5G5ag';
     await loadRazorpaySdk();
 
     if (!window.Razorpay) {
@@ -1176,20 +1175,52 @@ async function executeCheckoutPayment(grandTotal) {
       return;
     }
 
+    // Step 1: Create Order on Backend (POST /api/create-order)
+    showToast("Initiating secure Razorpay order session...");
+    let orderData;
+    try {
+      const orderRes = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: Math.round(grandTotal * 100),
+          currency: 'INR',
+          receipt: 'rcpt_' + orderId
+        })
+      });
+      orderData = await orderRes.json();
+
+      if (!orderRes.ok) {
+        showToast("Order creation error: " + (orderData.error || "Unable to initiate Razorpay order."));
+        return;
+      }
+    } catch (apiErr) {
+      console.warn("Backend API unreachable:", apiErr);
+      showToast("Server connection notice: Unable to contact /api/create-order.");
+      showRazorpayFallbackModal({
+        orderId, grandTotal, subtotal, discountAmount, shipping,
+        recipientName, phone: fullPhone, fullAddress, validItems
+      });
+      return;
+    }
+
+    // Step 2: Open Razorpay Modal with Backend Order ID
+    const activeKey = orderData.key_id || localStorage.getItem('stella_razorpay_key') || 'rzp_test_U2MEsqbiNgtArA';
     const options = {
-      key: rzpKey,
-      amount: Math.round(grandTotal * 100),
-      currency: "INR",
+      key: activeKey,
+      amount: orderData.amount,
+      currency: orderData.currency || "INR",
       name: "The Stella",
       description: "Botanical Radiance Order (" + orderId + ")",
       image: "https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/logo-STLKJDy87Vj6JxovRFEcieIRtrO5YT.svg",
+      order_id: orderData.order_id,
       prefill: {
         name: recipientName,
         email: (currentUser && currentUser.email) ? currentUser.email : "care@thestella.in",
         contact: countryCode.replace('+', '') + rawPhone
       },
       notes: {
-        order_id: orderId,
+        store_order_id: orderId,
         destination: fullAddress,
         store: "The Stella Luxury Skincare"
       },
@@ -1205,22 +1236,50 @@ async function executeCheckoutPayment(grandTotal) {
           showToast("Payment checkout closed. Your shopping bag is preserved.");
         }
       },
-      handler: function(response) {
-        const paymentId = response.razorpay_payment_id || ('pay_' + Math.random().toString(36).substr(2, 9));
-        showToast("Payment verified via Razorpay.");
-        finalizeOrderReceipt({
-          orderId,
-          paymentId,
-          paymentMethod: 'Razorpay Online',
-          totalAmount: grandTotal,
-          subtotal,
-          discountAmount,
-          shipping,
-          recipientName,
-          phone: fullPhone,
-          fullAddress,
-          validItems
-        });
+      handler: async function(response) {
+        // Step 3: Verify Payment Signature on Backend (POST /api/verify-payment)
+        const paymentId = response.razorpay_payment_id;
+        const rzpOrderId = response.razorpay_order_id;
+        const signature = response.razorpay_signature;
+
+        showToast("Verifying payment signature with server...");
+
+        try {
+          const verifyRes = await fetch('/api/verify-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: rzpOrderId,
+              payment_id: paymentId,
+              signature: signature
+            })
+          });
+          const verifyData = await verifyRes.json();
+
+          if (verifyRes.ok && verifyData.status === 'success') {
+            showToast("Payment signature verified successfully.");
+            finalizeOrderReceipt({
+              orderId,
+              paymentId,
+              razorpayOrderId: rzpOrderId,
+              signature: signature,
+              paymentMethod: 'Razorpay Online (Verified)',
+              totalAmount: grandTotal,
+              subtotal,
+              discountAmount,
+              shipping,
+              recipientName,
+              phone: fullPhone,
+              fullAddress,
+              validItems
+            });
+          } else {
+            showToast("Payment verification failed: " + (verifyData.error || "Signature mismatch."));
+          }
+        } catch (verifyErr) {
+          console.error("Verification server error:", verifyErr);
+          showToast("Verification server error: " + verifyErr.message);
+        }
       }
     };
 
@@ -2361,12 +2420,12 @@ ${catalog.map(prod => `
     <span style="background: #ECFDF5; color: #047857; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-pill);">Active Gateway</span>
   </div>
   <p style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 16px; line-height: 1.6;">
-    Configure your Razorpay Key ID for processing UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, and NetBanking. The store defaults to Razorpay standard test mode (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_test_1DP5mmOlF5G5ag</code>). Paste your live key (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_live_...</code>) when transitioning to production.
+    Configure your Razorpay Key ID for processing UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, and NetBanking. The store defaults to Razorpay standard test mode (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_test_U2MEsqbiNgtArA</code>). Paste your live key (<code style="font-family: monospace; background: #FAF9F8; padding: 2px 6px; border-radius: 4px;">rzp_live_...</code>) when transitioning to production.
   </p>
   <div style="display: flex; gap: 12px; align-items: flex-end; max-width: 600px;">
     <div style="flex: 1;">
       <label style="display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Razorpay Key ID</label>
-      <input type="text" id="adminRzpKey" class="form-input" style="font-family: monospace; font-size: 0.88rem;" value="${localStorage.getItem('stella_razorpay_key') || 'rzp_test_1DP5mmOlF5G5ag'}">
+      <input type="text" id="adminRzpKey" class="form-input" style="font-family: monospace; font-size: 0.88rem;" value="${localStorage.getItem('stella_razorpay_key') || 'rzp_test_U2MEsqbiNgtArA'}">
     </div>
     <button class="btn-minimal btn-minimal-primary" style="padding: 11px 20px;" onclick="saveAdminRzpKey()">Save Gateway Key</button>
   </div>
