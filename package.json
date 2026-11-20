@@ -4,6 +4,7 @@
   "description": "The Stella — Luxury Botanical Skincare with Razorpay Standard Checkout",
   "type": "module",
   "scripts": {
+    "build": "echo 'Static assets ready'",
     "start": "python3 server.py",
     "dev": "python3 server.py"
   },
