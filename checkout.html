@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Stella — Secure Checkout</title>
+  <title>The Stella — Pure Botanical Actives & Everyday Radiance</title>
+  <meta name="description" content="Nourishing your skin, naturally. Clinical botanical formulations for everyday luminosity.">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Editorial Serif & Clean Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,320 +15,112 @@
 </head>
 <body>
 
-  <!-- Minimal Header -->
+  <!-- Minimalist Announcement -->
+  <div class="announcement-bar">
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off &bull; Available on <a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart</a>
+  </div>
+
+  <!-- Header -->
   <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="brand-logo" aria-label="The Stella Home">
+      <a href="index.html" class="brand-logo" aria-label="The Stella Home" onclick="spaNavigate(event, 'index.html')">
         <img src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/logo-STLKJDy87Vj6JxovRFEcieIRtrO5YT.svg" alt="The Stella">
       </a>
 
-      <div style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-secondary);">
-        Encrypted SSL Checkout
-      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link" id="nav-home" onclick="spaNavigate(event, 'index.html')">Home</a>
+        <a href="shop.html" class="nav-link" id="nav-shop" onclick="spaNavigate(event, 'shop.html')">Collection</a>
+        <a href="shop.html?category=face" class="nav-link" id="nav-face" onclick="spaNavigate(event, 'shop.html?category=face')">Face</a>
+        <a href="haircare.html" class="nav-link" id="nav-hair" onclick="spaNavigate(event, 'haircare.html')">Haircare</a>
+        <a href="shop.html?category=body" class="nav-link" id="nav-body" onclick="spaNavigate(event, 'shop.html?category=body')">Body</a>
+        <a href="about.html" class="nav-link" id="nav-about" onclick="spaNavigate(event, 'about.html')">About</a>
+        <a href="routine-finder.html" class="nav-link" id="nav-quiz" onclick="spaNavigate(event, 'routine-finder.html')">Routine Quiz</a>
+        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+      </nav>
 
-      <div style="font-size: 0.82rem;">
-        <a href="shop.html" style="text-decoration: underline; color: var(--color-text-secondary);">Return to Shop</a>
+      <div class="header-actions">
+        <span class="header-auth-status" style="font-size: 0.82rem;">
+          <a href="account.html" id="headerAuthLink" onclick="spaNavigate(event, 'account.html')">Account</a>
+        </span>
+
+        <a href="checkout.html" class="btn-icon" aria-label="Shopping Bag" onclick="spaNavigate(event, 'checkout.html')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-dot bag-count-badge">0</span>
+        </a>
+
+        <a href="shop.html" class="btn-minimal btn-minimal-primary" onclick="spaNavigate(event, 'shop.html')">
+          Shop Now
+        </a>
       </div>
     </div>
   </header>
 
-  <main class="container" style="padding-top: 30px;">
-    <!-- Active Checkout View -->
-    <div id="checkoutActiveView" class="checkout-grid">
-      <!-- Left Column: Shipping & Payment Form -->
-      <div>
-        <!-- Customer Info Form -->
-        <div class="form-card">
-          <h2 class="form-title">Delivery Destination</h2>
-          <form id="checkoutShippingForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Full Name</label>
-                <input type="text" id="custName" required class="form-input" placeholder="e.g. Piyush Baldaniya">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Mobile Number</label>
-                <input type="tel" id="custPhone" required class="form-input" placeholder="+91 98765 43210">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Email Address (Order tracking updates)</label>
-              <input type="email" id="custEmail" required class="form-input" placeholder="user@thestella.in">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Flat / House / Street Address</label>
-              <input type="text" id="custAddress" required class="form-input" placeholder="Apartment, Street address">
-            </div>
-
-            <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr;">
-              <div class="form-group">
-                <label class="form-label">City</label>
-                <input type="text" id="custCity" required class="form-input" placeholder="City">
-              </div>
-              <div class="form-group">
-                <label class="form-label">State</label>
-                <input type="text" id="custState" required class="form-input" placeholder="State">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Pincode</label>
-                <input type="text" id="custPincode" required class="form-input" placeholder="380015">
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <!-- Payment Method Selection -->
-        <div class="form-card">
-          <h2 class="form-title">Payment Method</h2>
-          <div class="payment-options-grid">
-            <div class="payment-radio-tile selected" onclick="selectPaymentMethod('UPI', this)">
-              <div>UPI / QR Code</div>
-              <div style="font-size: 0.72rem; color: var(--color-text-secondary); margin-top: 4px;">Instant Dispatch</div>
-            </div>
-            <div class="payment-radio-tile" onclick="selectPaymentMethod('Card', this)">
-              <div>Credit / Debit</div>
-              <div style="font-size: 0.72rem; color: var(--color-text-secondary); margin-top: 4px;">Visa / Mastercard</div>
-            </div>
-            <div class="payment-radio-tile" onclick="selectPaymentMethod('Cash on Delivery', this)">
-              <div>Cash on Delivery</div>
-              <div style="font-size: 0.72rem; color: var(--color-text-secondary); margin-top: 4px;">Pay at Doorstep</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Order Summary -->
-      <div>
-        <div class="form-card" style="background: #FDFBFC;">
-          <h2 class="form-title">Bag Summary</h2>
-          
-          <div id="checkoutItemsList" style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
-            <!-- Rendered by JavaScript -->
-          </div>
-
-          <div style="border-top: 1px solid var(--color-border); padding-top: 16px;">
-            <div class="cart-row">
-              <span>Subtotal</span>
-              <span id="summarySubtotal" style="font-weight: 600;">₹0</span>
-            </div>
-            <div class="cart-row">
-              <span>Promo Code (STELLA20)</span>
-              <span id="summaryDiscount" style="color: var(--color-primary); font-weight: 600;">-₹0</span>
-            </div>
-            <div class="cart-row">
-              <span>Delivery (Pan-India)</span>
-              <span style="font-weight: 600; color: #15803D;">Complimentary</span>
-            </div>
-            <div class="cart-total-line" style="border-top: 1px solid var(--color-border); padding-top: 12px; margin-top: 12px;">
-              <span>Total Payable</span>
-              <span id="summaryTotal" style="font-size: 1.3rem;">₹0</span>
-            </div>
-          </div>
-
-          <button class="btn-checkout-full" style="padding: 15px; margin-top: 10px;" onclick="submitOrder()">
-            Place Order
-          </button>
-
-          <div style="text-align: center; margin-top: 14px; font-size: 0.78rem; color: var(--color-text-tertiary);">
-            Safe 256-bit SSL encrypted transaction &bull; Easy 7-day returns
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Order Confirmation Receipt View (Shown after placement) -->
-    <div id="orderConfirmationView" style="display: none; max-width: 680px; margin: 40px auto 100px auto;">
-      <div class="form-card" style="text-align: center; padding: 50px 40px;">
-        <span class="text-eyebrow">Order Confirmed</span>
-        <h1 class="page-header-title" style="margin: 10px 0 16px 0;">Thank You for Your Order</h1>
-        <p class="text-muted" style="margin-bottom: 24px;">
-          Your formulation package has been scheduled for priority dispatch. A confirmation notification has been recorded for your account.
-        </p>
-
-        <div style="background: var(--color-bg); border-radius: var(--radius-md); padding: 24px; text-align: left; margin-bottom: 28px; border: 1px solid var(--color-border);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border-subtle);">
-            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Order Identifier:</span>
-            <strong id="receiptOrderId" style="font-family: var(--font-serif); font-size: 1.05rem;">STL-00000</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
-            <span style="color: var(--color-text-secondary);">Recipient:</span>
-            <span id="receiptCustomerName" style="font-weight: 600;">Customer</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
-            <span style="color: var(--color-text-secondary);">Shipping Address:</span>
-            <span id="receiptAddress" style="text-align: right; max-width: 320px;">Address</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.88rem;">
-            <span style="color: var(--color-text-secondary);">Payment Method:</span>
-            <span id="receiptPayment">UPI</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--color-border-subtle); font-size: 1.1rem; font-weight: 700;">
-            <span>Total Paid:</span>
-            <span id="receiptTotal">₹0</span>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-          <a href="account.html" class="btn-minimal btn-minimal-primary">
-            View in My Orders
-          </a>
-          <a href="shop.html" class="btn-minimal btn-minimal-outline">
-            Continue Shopping
-          </a>
-        </div>
-      </div>
-    </div>
+  <!-- DYNAMIC VIEW CONTAINER -->
+  <main id="appView">
+    <!-- Populated dynamically by app.js -->
   </main>
 
-  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/store-JxI4Ec1i1id9zUAXUBa2JwdJdjoWXP.js"></script>
-  <script>
-    let chosenPayment = 'UPI';
-    let currentTotal = 0;
+  <!-- Minimalist Site Footer -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="container">
+      <div class="footer-main-grid">
+        <div>
+          <a href="index.html" class="brand-logo" style="margin-bottom: 16px;" onclick="spaNavigate(event, 'index.html')">
+            <img src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/logo-STLKJDy87Vj6JxovRFEcieIRtrO5YT.svg" alt="The Stella">
+          </a>
+          <p style="font-size: 0.88rem; color: var(--color-text-secondary); max-width: 320px; line-height: 1.6;">
+            Nourishing your skin, naturally. Clinical botanical formulations crafted for everyday radiance.
+          </p>
+        </div>
 
-    function selectPaymentMethod(method, element) {
-      chosenPayment = method;
-      document.querySelectorAll('.payment-radio-tile').forEach(el => el.classList.remove('selected'));
-      element.classList.add('selected');
-    }
+        <div>
+          <h4 class="footer-col-title">Navigation</h4>
+          <ul class="footer-list">
+            <li><a href="shop.html" onclick="spaNavigate(event, 'shop.html')">All Products</a></li>
+            <li><a href="haircare.html" onclick="spaNavigate(event, 'haircare.html')">Curd Haircare</a></li>
+            <li><a href="about.html" onclick="spaNavigate(event, 'about.html')">About The Stella</a></li>
+            <li><a href="routine-finder.html" onclick="spaNavigate(event, 'routine-finder.html')">Routine Diagnostic</a></li>
+          </ul>
+        </div>
 
-    function renderCheckoutSummary() {
-      const bag = getBag();
-      const catalog = getCatalog();
-      const container = document.getElementById('checkoutItemsList');
+        <div>
+          <h4 class="footer-col-title">Portals</h4>
+          <ul class="footer-list">
+            <li><a href="account.html" onclick="spaNavigate(event, 'account.html')">Customer Sign In / Sign Up</a></li>
+            <li><a href="admin.html" onclick="spaNavigate(event, 'admin.html')">Admin Management Portal</a></li>
+            <li><a href="contact.html" onclick="spaNavigate(event, 'contact.html')">Track Order & Contact</a></li>
+            <li><a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart Storefront</a></li>
+          </ul>
+        </div>
 
-      if (!container) return;
-
-      if (bag.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 20px;">
-            <p style="color: var(--color-text-secondary);">Your shopping bag is empty.</p>
-            <a href="shop.html" class="btn-minimal btn-minimal-primary" style="margin-top: 12px; display: inline-block;">Browse Collection</a>
+        <div>
+          <h4 class="footer-col-title">Assistance</h4>
+          <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6;">
+            Direct inquiries: <a href="mailto:care@thestella.in" style="text-decoration: underline;">care@thestella.in</a>
+          </p>
+          <div style="margin-top: 16px;">
+            <a href="admin.html" class="btn-minimal btn-minimal-outline" style="font-size: 0.72rem; padding: 6px 12px;" onclick="spaNavigate(event, 'admin.html')">Admin Access</a>
           </div>
-        `;
-        document.getElementById('summarySubtotal').textContent = '₹0';
-        document.getElementById('summaryDiscount').textContent = '—';
-        document.getElementById('summaryTotal').textContent = '₹0';
-        return;
-      }
+        </div>
+      </div>
 
-      let subtotal = 0;
-      container.innerHTML = bag.map(item => {
-        const product = catalog.find(p => p.id === item.id);
-        if (!product) return '';
-        const itemTotal = product.price * item.quantity;
-        subtotal += itemTotal;
+      <div class="footer-legal-bar">
+        <div>&copy; 2026 The Stella. All rights reserved.</div>
+        <div>Crafted with clinical intention. Made in India.</div>
+      </div>
+    </div>
+  </footer>
 
-        return `
-          <div style="display: flex; gap: 12px; align-items: center;">
-            <div style="width: 50px; height: 50px; background: #FFFFFF; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
-              <img src="${product.image}" alt="${product.name}" style="max-height: 42px; object-fit: contain;">
-            </div>
-            <div style="flex: 1;">
-              <div style="font-size: 0.85rem; font-weight: 600; color: var(--color-text-main);">${product.name}</div>
-              <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Qty: ${item.quantity} &bull; ₹${product.price} each</div>
-            </div>
-            <div style="font-weight: 600; font-size: 0.88rem;">₹${itemTotal}</div>
-          </div>
-        `;
-      }).join('');
-
-      const discount = Math.round(subtotal * 0.20); // 20% off with STELLA20
-      currentTotal = subtotal - discount;
-
-      document.getElementById('summarySubtotal').textContent = `₹${subtotal}`;
-      document.getElementById('summaryDiscount').textContent = `-₹${discount}`;
-      document.getElementById('summaryTotal').textContent = `₹${currentTotal}`;
-    }
-
-    function autofillFromCurrentUser() {
-      const user = getCurrentUser();
-      if (user) {
-        document.getElementById('custName').value = user.name || '';
-        document.getElementById('custPhone').value = user.phone || '';
-        document.getElementById('custEmail').value = user.email || '';
-        if (user.addresses && user.addresses[0]) {
-          document.getElementById('custAddress').value = user.addresses[0].line1 || '';
-          document.getElementById('custCity').value = user.addresses[0].city || '';
-          document.getElementById('custState').value = user.addresses[0].state || '';
-          document.getElementById('custPincode').value = user.addresses[0].pincode || '';
-        }
-      }
-    }
-
-    function submitOrder() {
-      const bag = getBag();
-      if (bag.length === 0) {
-        showToast('Your bag is empty.');
-        return;
-      }
-
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const email = document.getElementById('custEmail').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
-      const city = document.getElementById('custCity').value.trim();
-      const state = document.getElementById('custState').value.trim();
-      const pincode = document.getElementById('custPincode').value.trim();
-
-      if (!name || !phone || !email || !address || !city || !state || !pincode) {
-        showToast('Please complete all delivery fields.');
-        return;
-      }
-
-      const orderId = 'STL-' + Math.floor(10000 + Math.random() * 90000);
-      const fullAddress = `${address}, ${city}, ${state} ${pincode}`;
-      const catalog = getCatalog();
-
-      const orderItems = bag.map(item => {
-        const prod = catalog.find(p => p.id === item.id);
-        return {
-          id: item.id,
-          name: prod ? prod.name : 'The Stella Item',
-          price: prod ? prod.price : 499,
-          quantity: item.quantity
-        };
-      });
-
-      const newOrder = {
-        orderId,
-        date: new Date().toISOString().split('T')[0],
-        customerName: name,
-        customerEmail: email,
-        customerPhone: phone,
-        address: fullAddress,
-        items: orderItems,
-        subtotal: Math.round(currentTotal / 0.8),
-        discount: Math.round(currentTotal / 0.8 * 0.2),
-        shipping: 0,
-        total: currentTotal,
-        paymentMethod: chosenPayment,
-        status: 'Pending',
-        trackingNumber: 'DEL-' + Math.floor(10000000 + Math.random() * 90000000)
-      };
-
-      // Save order to store
-      saveOrder(newOrder);
-
-      // Clear bag
-      saveBag([]);
-
-      // Display Confirmation Receipt
-      document.getElementById('checkoutActiveView').style.display = 'none';
-      document.getElementById('orderConfirmationView').style.display = 'block';
-
-      document.getElementById('receiptOrderId').textContent = orderId;
-      document.getElementById('receiptCustomerName').textContent = name;
-      document.getElementById('receiptAddress').textContent = fullAddress;
-      document.getElementById('receiptPayment').textContent = chosenPayment;
-      document.getElementById('receiptTotal').textContent = `₹${currentTotal}`;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      autofillFromCurrentUser();
-      renderCheckoutSummary();
-    });
-  </script>
+  <!-- Google Firebase Cloud SDK (the-stella) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/firebase-config-IAcmPmbR1szxtHSmL6ndoitJg4wb1e.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/store-5sLBfGMN7o59Q60cVBuDQRSFElTwm0.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/app-WnfWSllH8THWmEaFpbJ0lkPjabyemX.js"></script>
 </body>
 </html>

@@ -3,292 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Stella — Administration Console</title>
+  <title>The Stella — Pure Botanical Actives & Everyday Radiance</title>
+  <meta name="description" content="Nourishing your skin, naturally. Clinical botanical formulations for everyday luminosity.">
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Editorial Serif & Clean Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/styles-CxV8MDxeo7vlVqHCYIDCSdWR9G3dcl.css">
 </head>
-<body style="background: #F8F4F6;">
+<body>
+
+  <!-- Minimalist Announcement -->
+  <div class="announcement-bar">
+    Complimentary Pan-India delivery on orders above ₹499 &bull; Use code <strong>STELLA20</strong> for 20% off &bull; Available on <a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart</a>
+  </div>
 
   <!-- Header -->
-  <header class="site-header" style="background: #FFFFFF;">
+  <header class="site-header">
     <div class="container header-inner">
-      <a href="index.html" class="brand-logo" aria-label="The Stella Home">
+      <a href="index.html" class="brand-logo" aria-label="The Stella Home" onclick="spaNavigate(event, 'index.html')">
         <img src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/logo-STLKJDy87Vj6JxovRFEcieIRtrO5YT.svg" alt="The Stella">
       </a>
 
-      <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-primary);">
-        Administrative Management
-      </div>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link" id="nav-home" onclick="spaNavigate(event, 'index.html')">Home</a>
+        <a href="shop.html" class="nav-link" id="nav-shop" onclick="spaNavigate(event, 'shop.html')">Collection</a>
+        <a href="shop.html?category=face" class="nav-link" id="nav-face" onclick="spaNavigate(event, 'shop.html?category=face')">Face</a>
+        <a href="haircare.html" class="nav-link" id="nav-hair" onclick="spaNavigate(event, 'haircare.html')">Haircare</a>
+        <a href="shop.html?category=body" class="nav-link" id="nav-body" onclick="spaNavigate(event, 'shop.html?category=body')">Body</a>
+        <a href="about.html" class="nav-link" id="nav-about" onclick="spaNavigate(event, 'about.html')">About</a>
+        <a href="routine-finder.html" class="nav-link" id="nav-quiz" onclick="spaNavigate(event, 'routine-finder.html')">Routine Quiz</a>
+        <a href="https://www.flipkart.com" target="_blank" rel="noopener" class="nav-link">Flipkart</a>
+      </nav>
 
-      <div style="display: flex; gap: 14px; align-items: center;">
-        <a href="index.html" class="btn-minimal btn-minimal-outline" style="font-size: 0.75rem; padding: 6px 12px;">Storefront</a>
-        <button id="adminLogoutBtn" onclick="handleAdminLogout()" class="btn-minimal btn-minimal-primary" style="display: none; font-size: 0.75rem; padding: 6px 12px;">Sign Out</button>
+      <div class="header-actions">
+        <span class="header-auth-status" style="font-size: 0.82rem;">
+          <a href="account.html" id="headerAuthLink" onclick="spaNavigate(event, 'account.html')">Account</a>
+        </span>
+
+        <a href="checkout.html" class="btn-icon" aria-label="Shopping Bag" onclick="spaNavigate(event, 'checkout.html')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          <span class="badge-dot bag-count-badge">0</span>
+        </a>
+
+        <a href="shop.html" class="btn-minimal btn-minimal-primary" onclick="spaNavigate(event, 'shop.html')">
+          Shop Now
+        </a>
       </div>
     </div>
   </header>
 
-  <main class="container admin-shell">
-    <!-- 1. ADMIN LOGIN VIEW -->
-    <div id="adminLoginBox" class="auth-wrapper" style="margin-top: 40px;">
-      <span class="text-eyebrow">Restricted Access</span>
-      <h1 class="page-header-title" style="font-size: 1.6rem; margin: 8px 0 16px 0;">Admin Portal Login</h1>
-      <p class="text-muted" style="font-size: 0.88rem; margin-bottom: 24px;">
-        Sign in to manage product inventory, adjust catalog pricing, and process customer fulfillment orders.
-      </p>
-
-      <form onsubmit="handleAdminLogin(event)">
-        <div class="form-group">
-          <label class="form-label">Administrator Email</label>
-          <input type="email" id="adminEmailInput" required class="form-input" value="admin@thestella.in">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Access Key / Password</label>
-          <input type="password" id="adminPassInput" required class="form-input" value="admin123">
-        </div>
-
-        <button type="submit" class="btn-checkout-full" style="margin-top: 8px;">
-          Authenticate Access
-        </button>
-
-        <div style="margin-top: 18px; padding: 12px; background: var(--color-bg); border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--color-text-secondary); text-align: center;">
-          Default Admin Credentials:<br>
-          <strong>admin@thestella.in</strong> &bull; <strong>admin123</strong>
-        </div>
-      </form>
-    </div>
-
-    <!-- 2. ADMIN DASHBOARD VIEW (Shown after authentication) -->
-    <div id="adminDashboardBox" style="display: none;">
-      <!-- Welcome Header -->
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 28px; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <span class="text-eyebrow">Real-Time Metrics</span>
-          <h1 class="heading-lg" style="margin-top: 4px;">Store Operations Overview</h1>
-        </div>
-        <div style="font-size: 0.82rem; color: var(--color-text-secondary);">
-          Connected Session: <strong>admin@thestella.in</strong> &bull; Lead Administrator
-        </div>
-      </div>
-
-      <!-- KPI Metrics Grid -->
-      <div class="admin-kpi-grid">
-        <div class="admin-kpi-card">
-          <span class="text-eyebrow">Gross Revenue</span>
-          <div class="admin-kpi-val" id="kpiRevenue">₹0</div>
-          <div style="font-size: 0.75rem; color: #15803D; margin-top: 4px;">Processed Orders</div>
-        </div>
-
-        <div class="admin-kpi-card">
-          <span class="text-eyebrow">Total Orders</span>
-          <div class="admin-kpi-val" id="kpiOrders">0</div>
-          <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px;">Fulfillment Queue</div>
-        </div>
-
-        <div class="admin-kpi-card">
-          <span class="text-eyebrow">Active Formulas</span>
-          <div class="admin-kpi-val" id="kpiProducts">0</div>
-          <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px;">Catalog Items</div>
-        </div>
-
-        <div class="admin-kpi-card">
-          <span class="text-eyebrow">Registered Users</span>
-          <div class="admin-kpi-val" id="kpiCustomers">0</div>
-          <div style="font-size: 0.75rem; color: var(--color-text-secondary); margin-top: 4px;">Active Customer Accounts</div>
-        </div>
-      </div>
-
-      <!-- Section: Orders Management -->
-      <div style="margin-bottom: 40px;">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
-          <h2 class="heading-md">Fulfillment Orders Management</h2>
-          <span style="font-size: 0.78rem; color: var(--color-text-secondary);">Click status dropdown to update state immediately.</span>
-        </div>
-
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Recipient</th>
-                <th>Formulations</th>
-                <th>Total</th>
-                <th>Payment</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="adminOrdersTbody">
-              <!-- Rendered by JavaScript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Section: Inventory & Pricing Management -->
-      <div style="margin-bottom: 40px;">
-        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px;">
-          <h2 class="heading-md">Inventory &amp; Pricing Controller</h2>
-          <span style="font-size: 0.78rem; color: var(--color-text-secondary);">Adjust prices or stock; changes reflect across the live store immediately.</span>
-        </div>
-
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Product Formulation</th>
-                <th>Category</th>
-                <th>Volume</th>
-                <th>Price (₹)</th>
-                <th>Stock Units</th>
-                <th>Update</th>
-              </tr>
-            </thead>
-            <tbody id="adminInventoryTbody">
-              <!-- Rendered by JavaScript -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <!-- DYNAMIC VIEW CONTAINER -->
+  <main id="appView">
+    <!-- Populated dynamically by app.js -->
   </main>
 
-  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/store-JxI4Ec1i1id9zUAXUBa2JwdJdjoWXP.js"></script>
-  <script>
-    function checkAdminSession() {
-      const session = getAdminSession();
-      const loginBox = document.getElementById('adminLoginBox');
-      const dashBox = document.getElementById('adminDashboardBox');
-      const logoutBtn = document.getElementById('adminLogoutBtn');
+  <!-- Minimalist Site Footer -->
+  <footer class="site-footer" id="siteFooter">
+    <div class="container">
+      <div class="footer-main-grid">
+        <div>
+          <a href="index.html" class="brand-logo" style="margin-bottom: 16px;" onclick="spaNavigate(event, 'index.html')">
+            <img src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/logo-STLKJDy87Vj6JxovRFEcieIRtrO5YT.svg" alt="The Stella">
+          </a>
+          <p style="font-size: 0.88rem; color: var(--color-text-secondary); max-width: 320px; line-height: 1.6;">
+            Nourishing your skin, naturally. Clinical botanical formulations crafted for everyday radiance.
+          </p>
+        </div>
 
-      if (session) {
-        loginBox.style.display = 'none';
-        dashBox.style.display = 'block';
-        logoutBtn.style.display = 'inline-block';
-        loadAdminData();
-      } else {
-        loginBox.style.display = 'block';
-        dashBox.style.display = 'none';
-        logoutBtn.style.display = 'none';
-      }
-    }
+        <div>
+          <h4 class="footer-col-title">Navigation</h4>
+          <ul class="footer-list">
+            <li><a href="shop.html" onclick="spaNavigate(event, 'shop.html')">All Products</a></li>
+            <li><a href="haircare.html" onclick="spaNavigate(event, 'haircare.html')">Curd Haircare</a></li>
+            <li><a href="about.html" onclick="spaNavigate(event, 'about.html')">About The Stella</a></li>
+            <li><a href="routine-finder.html" onclick="spaNavigate(event, 'routine-finder.html')">Routine Diagnostic</a></li>
+          </ul>
+        </div>
 
-    function handleAdminLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('adminEmailInput').value.trim();
-      const pass = document.getElementById('adminPassInput').value;
+        <div>
+          <h4 class="footer-col-title">Portals</h4>
+          <ul class="footer-list">
+            <li><a href="account.html" onclick="spaNavigate(event, 'account.html')">Customer Sign In / Sign Up</a></li>
+            <li><a href="admin.html" onclick="spaNavigate(event, 'admin.html')">Admin Management Portal</a></li>
+            <li><a href="contact.html" onclick="spaNavigate(event, 'contact.html')">Track Order & Contact</a></li>
+            <li><a href="https://www.flipkart.com" target="_blank" rel="noopener">Flipkart Storefront</a></li>
+          </ul>
+        </div>
 
-      if (email.toLowerCase() === ADMIN_CREDENTIALS.email.toLowerCase() && pass === ADMIN_CREDENTIALS.password) {
-        setAdminSession(ADMIN_CREDENTIALS);
-        showToast('Admin session verified.');
-        checkAdminSession();
-      } else {
-        showToast('Access Denied: Invalid credentials.');
-      }
-    }
+        <div>
+          <h4 class="footer-col-title">Assistance</h4>
+          <p style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6;">
+            Direct inquiries: <a href="mailto:care@thestella.in" style="text-decoration: underline;">care@thestella.in</a>
+          </p>
+          <div style="margin-top: 16px;">
+            <a href="admin.html" class="btn-minimal btn-minimal-outline" style="font-size: 0.72rem; padding: 6px 12px;" onclick="spaNavigate(event, 'admin.html')">Admin Access</a>
+          </div>
+        </div>
+      </div>
 
-    function handleAdminLogout() {
-      setAdminSession(null);
-      showToast('Admin logged out.');
-      checkAdminSession();
-    }
+      <div class="footer-legal-bar">
+        <div>&copy; 2026 The Stella. All rights reserved.</div>
+        <div>Crafted with clinical intention. Made in India.</div>
+      </div>
+    </div>
+  </footer>
 
-    function loadAdminData() {
-      const orders = getOrders();
-      const catalog = getCatalog();
-      const users = getUsers();
-
-      // KPIs
-      const revenue = orders.reduce((sum, o) => sum + o.total, 0);
-      document.getElementById('kpiRevenue').textContent = `₹${revenue.toLocaleString()}`;
-      document.getElementById('kpiOrders').textContent = orders.length;
-      document.getElementById('kpiProducts').textContent = catalog.length;
-      document.getElementById('kpiCustomers').textContent = users.length;
-
-      // Render Orders Table
-      const ordersTbody = document.getElementById('adminOrdersTbody');
-      ordersTbody.innerHTML = orders.map(order => `
-        <tr>
-          <td><strong style="font-family: monospace;">${order.orderId}</strong></td>
-          <td style="color: var(--color-text-secondary); font-size: 0.8rem;">${order.date}</td>
-          <td>
-            <div style="font-weight: 600;">${order.customerName}</div>
-            <div style="font-size: 0.75rem; color: var(--color-text-tertiary);">${order.customerEmail}</div>
-          </td>
-          <td style="font-size: 0.8rem;">
-            ${order.items.map(i => `${i.name} (${i.quantity})`).join(', ')}
-          </td>
-          <td><strong>₹${order.total}</strong></td>
-          <td style="font-size: 0.8rem;">${order.paymentMethod}</td>
-          <td>
-            <select class="admin-action-btn" onchange="changeOrderStatusFromAdmin('${order.orderId}', this.value)">
-              <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
-              <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-              <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-            </select>
-          </td>
-          <td>
-            <span class="order-badge-pill badge-${order.status.toLowerCase()}">${order.status}</span>
-          </td>
-        </tr>
-      `).join('');
-
-      // Render Inventory Table
-      const invTbody = document.getElementById('adminInventoryTbody');
-      invTbody.innerHTML = catalog.map((p, index) => `
-        <tr>
-          <td>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <img src="${p.image}" alt="" style="width: 36px; height: 36px; object-fit: contain; background: #FFF; border-radius: 4px; border: 1px solid var(--color-border-subtle);">
-              <div>
-                <strong style="display: block;">${p.name}</strong>
-                <span style="font-size: 0.72rem; color: var(--color-text-tertiary);">${p.badge}</span>
-              </div>
-            </div>
-          </td>
-          <td style="text-transform: uppercase; font-size: 0.75rem; font-weight: 600;">${p.category}</td>
-          <td style="font-size: 0.8rem; color: var(--color-text-secondary);">${p.volume}</td>
-          <td>
-            <input type="number" id="priceInput_${p.id}" value="${p.price}" class="form-input" style="width: 90px; padding: 4px 8px; font-size: 0.82rem;">
-          </td>
-          <td>
-            <input type="number" id="stockInput_${p.id}" value="${p.stock}" class="form-input" style="width: 80px; padding: 4px 8px; font-size: 0.82rem;">
-          </td>
-          <td>
-            <button class="admin-action-btn" onclick="saveProductUpdate('${p.id}')">Save</button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    function changeOrderStatusFromAdmin(orderId, newStatus) {
-      updateOrderStatus(orderId, newStatus);
-      showToast(`Order ${orderId} updated to ${newStatus}`);
-      loadAdminData();
-    }
-
-    function saveProductUpdate(productId) {
-      const newPrice = parseInt(document.getElementById(`priceInput_${productId}`).value, 10);
-      const newStock = parseInt(document.getElementById(`stockInput_${productId}`).value, 10);
-
-      const catalog = getCatalog();
-      const product = catalog.find(p => p.id === productId);
-      if (product) {
-        product.price = newPrice;
-        product.stock = newStock;
-        saveCatalog(catalog);
-        showToast(`Saved updates for ${product.name}`);
-        loadAdminData();
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', checkAdminSession);
-  </script>
+  <!-- Google Firebase Cloud SDK (the-stella) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/firebase-config-IAcmPmbR1szxtHSmL6ndoitJg4wb1e.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/store-5sLBfGMN7o59Q60cVBuDQRSFElTwm0.js"></script>
+  <script src="https://yjvwhwhqqsiaau2p.public.blob.vercel-storage.com/app-WnfWSllH8THWmEaFpbJ0lkPjabyemX.js"></script>
 </body>
 </html>

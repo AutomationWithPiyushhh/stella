@@ -305,14 +305,28 @@ function saveOrder(order) {
   const orders = getOrders();
   orders.unshift(order);
   localStorage.setItem('stella_orders', JSON.stringify(orders));
+
+  // Sync to Cloud Firestore in real time
+  if (window.StellaFirebase && window.StellaFirebase.db) {
+    window.StellaFirebase.db.createOrder(order).catch(err => {
+      console.warn('Firestore order sync notice:', err.message);
+    });
+  }
 }
 
 function updateOrderStatus(orderId, newStatus) {
   const orders = getOrders();
-  const order = orders.find(o => o.orderId === orderId);
+  const order = orders.find(o => (o.orderId === orderId || o.id === orderId));
   if (order) {
     order.status = newStatus;
     localStorage.setItem('stella_orders', JSON.stringify(orders));
+  }
+
+  // Sync status update to Cloud Firestore
+  if (window.StellaFirebase && window.StellaFirebase.db) {
+    window.StellaFirebase.db.updateOrderStatus(orderId, newStatus).catch(err => {
+      console.warn('Firestore status update notice:', err.message);
+    });
   }
 }
 
@@ -361,4 +375,55 @@ function updateHeaderAuthUI() {
 document.addEventListener('DOMContentLoaded', () => {
   updateHeaderBagBadge();
   updateHeaderAuthUI();
+
+  // Initialize and synchronize with Firebase Cloud Firestore
+  if (window.StellaFirebase) {
+    if (typeof window.StellaFirebase.init === 'function') {
+      window.StellaFirebase.init();
+    }
+
+    if (window.StellaFirebase.db) {
+      // Seed products on first run if Firestore collection is empty
+      window.StellaFirebase.db.seedProductsIfEmpty(DEFAULT_CATALOG);
+
+      // Real-time bidirectional order sync
+      window.StellaFirebase.db.listenOrders(remoteOrders => {
+        if (Array.isArray(remoteOrders) && remoteOrders.length > 0) {
+          localStorage.setItem('stella_orders', JSON.stringify(remoteOrders));
+          // If viewing admin or account page, refresh view
+          if (window.location.pathname.includes('admin') || window.location.pathname.includes('account')) {
+            if (typeof renderCurrentRoute === 'function') {
+              renderCurrentRoute();
+            }
+          }
+        }
+      });
+
+      // Real-time catalog sync
+      window.StellaFirebase.db.listenProducts(remoteProducts => {
+        if (Array.isArray(remoteProducts) && remoteProducts.length > 0) {
+          localStorage.setItem('stella_catalog', JSON.stringify(remoteProducts));
+          if (typeof renderCurrentRoute === 'function') {
+            renderCurrentRoute();
+          }
+        }
+      });
+    }
+
+    // Observe Firebase Authentication state changes
+    if (window.StellaFirebase.auth) {
+      window.StellaFirebase.auth.onAuthStateChanged(fbUser => {
+        if (fbUser) {
+          const profile = {
+            id: fbUser.uid,
+            uid: fbUser.uid,
+            name: fbUser.displayName || (fbUser.phoneNumber ? 'Client (' + fbUser.phoneNumber.slice(-4) + ')' : fbUser.email.split('@')[0]),
+            email: fbUser.email || (fbUser.phoneNumber ? fbUser.phoneNumber + '@thestella.in' : ''),
+            phone: fbUser.phoneNumber || ''
+          };
+          setCurrentUser(profile);
+        }
+      });
+    }
+  }
 });

@@ -958,8 +958,9 @@ el.innerHTML = `
 </div>
 <div style="background: #FFFFFF; border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: 36px 32px; box-shadow: var(--shadow-sm);">
 <div style="display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: 24px;">
-<button type="button" class="tab-btn ${accountAuthTab==='signin'?'active':''}" style="flex: 1; border-bottom: 2px solid ${accountAuthTab==='signin'?'var(--color-primary)':'transparent'};" onclick="accountAuthTab='signin'; renderCurrentRoute();">Sign In</button>
-<button type="button" class="tab-btn ${accountAuthTab==='signup'?'active':''}" style="flex: 1; border-bottom: 2px solid ${accountAuthTab==='signup'?'var(--color-primary)':'transparent'};" onclick="accountAuthTab='signup'; renderCurrentRoute();">Create Account</button>
+<button type="button" class="tab-btn ${accountAuthTab==='signin'?'active':''}" style="flex: 1; border-bottom: 2px solid ${accountAuthTab==='signin'?'var(--color-primary)':'transparent'}; font-size: 0.85rem;" onclick="accountAuthTab='signin'; renderCurrentRoute();">Email</button>
+<button type="button" class="tab-btn ${accountAuthTab==='phone'?'active':''}" style="flex: 1; border-bottom: 2px solid ${accountAuthTab==='phone'?'var(--color-primary)':'transparent'}; font-size: 0.85rem;" onclick="accountAuthTab='phone'; renderCurrentRoute();">Phone OTP</button>
+<button type="button" class="tab-btn ${accountAuthTab==='signup'?'active':''}" style="flex: 1; border-bottom: 2px solid ${accountAuthTab==='signup'?'var(--color-primary)':'transparent'}; font-size: 0.85rem;" onclick="accountAuthTab='signup'; renderCurrentRoute();">Register</button>
 </div>
 ${accountAuthTab === 'signin' ? `
 <div style="margin-bottom: 14px;">
@@ -970,8 +971,28 @@ ${accountAuthTab === 'signin' ? `
 <label style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Password</label>
 <input type="password" id="authPassword" class="form-input" value="password123">
 </div>
-<button class="btn-minimal btn-minimal-primary" style="width: 100%; padding: 13px;" onclick="executeUserSignIn()">Sign In to Stella</button>
+<button class="btn-minimal btn-minimal-primary" style="width: 100%; padding: 13px;" onclick="executeUserSignIn()">Sign In with Email</button>
 <p style="font-size: 0.78rem; color: var(--color-text-secondary); text-align: center; margin-top: 14px;">Test credentials prefilled for instant access.</p>
+` : accountAuthTab === 'phone' ? `
+<div id="phoneStep1">
+<div style="margin-bottom: 14px;">
+<label style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Mobile Number</label>
+<div style="display: flex; gap: 8px;">
+<span style="display: flex; align-items: center; padding: 0 12px; background: #FDFBFC; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 600;">+91</span>
+<input type="tel" id="authPhone" class="form-input" style="flex: 1;" placeholder="98765 43210" value="9876543210">
+</div>
+</div>
+<div id="recaptcha-container"></div>
+<button class="btn-minimal btn-minimal-primary" style="width: 100%; padding: 13px;" onclick="executeSendOtp()">Send Verification Code</button>
+</div>
+<div id="phoneStep2" style="display: none;">
+<div style="margin-bottom: 14px;">
+<label style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Enter 6-Digit SMS OTP</label>
+<input type="text" id="authOtpCode" class="form-input" placeholder="123456" maxlength="6" style="letter-spacing: 0.25em; text-align: center; font-size: 1.2rem; font-weight: 700;">
+</div>
+<button class="btn-minimal btn-minimal-primary" style="width: 100%; padding: 13px;" onclick="executeVerifyOtp()">Verify & Sign In</button>
+<button type="button" class="btn-minimal btn-minimal-outline" style="width: 100%; margin-top: 10px; font-size: 0.8rem;" onclick="document.getElementById('phoneStep1').style.display='block'; document.getElementById('phoneStep2').style.display='none';">Re-enter Phone</button>
+</div>
 ` : `
 <div style="margin-bottom: 12px;">
 <label style="display: block; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Full Name</label>
@@ -987,14 +1008,111 @@ ${accountAuthTab === 'signin' ? `
 </div>
 <button class="btn-minimal btn-minimal-primary" style="width: 100%; padding: 13px;" onclick="executeUserSignUp()">Create Account</button>
 `}
+
+<div style="margin: 22px 0 16px 0; display: flex; align-items: center; text-align: center;">
+<div style="flex: 1; border-bottom: 1px solid var(--color-border);"></div>
+<span style="padding: 0 12px; font-size: 0.72rem; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em;">Or Continue With</span>
+<div style="flex: 1; border-bottom: 1px solid var(--color-border);"></div>
+</div>
+
+<button type="button" class="btn-minimal btn-minimal-outline" style="width: 100%; padding: 11px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; font-size: 0.88rem;" onclick="executeGoogleSignIn()">
+<svg width="18" height="18" viewBox="0 0 24 24">
+<path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+<path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+<path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+<path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+</svg>
+Sign In with Google
+</button>
+
+<div style="margin-top: 18px; padding: 10px 14px; background: #FDFBFC; border: 1px solid var(--color-border); border-radius: var(--radius-sm); font-size: 0.72rem; color: var(--color-text-secondary); text-align: center;">
+Connected to Google Cloud Firestore (the-stella)
+</div>
 </div>
 </div>
 `;
 }
 }
-function executeUserSignIn() {
+async function executeGoogleSignIn() {
+if (window.StellaFirebase && window.StellaFirebase.auth) {
+try {
+showToast("Opening Google Sign-In...");
+const profile = await window.StellaFirebase.auth.signInWithGoogle();
+setCurrentUser(profile);
+showToast("Welcome back, " + profile.name);
+renderCurrentRoute();
+} catch (err) {
+console.warn(err);
+showToast(err.message || "Google Sign-In was cancelled or domain unauthorized.");
+}
+} else {
+showToast("Connecting to Firebase...");
+}
+}
+async function executeSendOtp() {
+const phone = document.getElementById('authPhone')?.value.trim();
+if (!phone || phone.length < 8) {
+showToast("Please enter a valid mobile number.");
+return;
+}
+const fullPhone = phone.startsWith('+') ? phone : '+91' + phone.replace(/^0+/, '');
+if (window.StellaFirebase && window.StellaFirebase.auth) {
+try {
+showToast("Sending OTP to " + fullPhone + "...");
+await window.StellaFirebase.auth.sendPhoneOtp(fullPhone, 'recaptcha-container');
+showToast("Verification code sent via SMS!");
+const s1 = document.getElementById('phoneStep1');
+const s2 = document.getElementById('phoneStep2');
+if (s1 && s2) {
+s1.style.display = 'none';
+s2.style.display = 'block';
+}
+} catch (err) {
+console.error(err);
+showToast(err.message || "Unable to send SMS. Ensure Phone Auth is enabled in Firebase Console.");
+}
+} else {
+showToast("Connecting to Firebase Phone Auth...");
+}
+}
+async function executeVerifyOtp() {
+const code = document.getElementById('authOtpCode')?.value.trim();
+if (!code || code.length < 6) {
+showToast("Please enter the 6-digit verification code.");
+return;
+}
+if (window.StellaFirebase && window.StellaFirebase.auth) {
+try {
+showToast("Verifying code...");
+const profile = await window.StellaFirebase.auth.verifyPhoneOtp(code);
+setCurrentUser(profile);
+showToast("Phone verified! Welcome, " + profile.name);
+renderCurrentRoute();
+} catch (err) {
+console.error(err);
+showToast(err.message || "Invalid or expired OTP code.");
+}
+}
+}
+async function executeUserSignIn() {
 const email = document.getElementById('authEmail')?.value.trim();
 const pass = document.getElementById('authPassword')?.value.trim();
+if (!email || !pass) {
+showToast("Please enter email and password.");
+return;
+}
+if (window.StellaFirebase && window.StellaFirebase.auth) {
+try {
+showToast("Authenticating...");
+const profile = await window.StellaFirebase.auth.signInWithEmail(email, pass);
+setCurrentUser(profile);
+showToast("Signed in as " + profile.name);
+renderCurrentRoute();
+return;
+} catch (err) {
+console.warn("Firebase email sign-in fallback:", err.message);
+}
+}
 const users = getUsers();
 const u = users.find(x => x.email === email && x.password === pass);
 if (u) {
@@ -1005,13 +1123,25 @@ renderCurrentRoute();
 showToast("Invalid email or password.");
 }
 }
-function executeUserSignUp() {
+async function executeUserSignUp() {
 const name = document.getElementById('regName')?.value.trim();
 const email = document.getElementById('regEmail')?.value.trim();
 const pass = document.getElementById('regPassword')?.value.trim();
 if (!name || !email || !pass) {
 showToast("Please fill all fields.");
 return;
+}
+if (window.StellaFirebase && window.StellaFirebase.auth) {
+try {
+showToast("Registering account in Firebase...");
+const profile = await window.StellaFirebase.auth.signUpWithEmail(email, pass, name);
+setCurrentUser(profile);
+showToast("Account created in Firestore!");
+renderCurrentRoute();
+return;
+} catch (err) {
+console.warn("Firebase sign-up fallback:", err.message);
+}
 }
 const users = getUsers();
 const newUser = { id: 'usr_' + Date.now(), name, email, password: pass };
@@ -1202,16 +1332,31 @@ Locate active shipments or submit formulation questions to our client concierge.
 </section>
 `;
 }
-function trackOrder() {
+async function trackOrder() {
 const q = document.getElementById('trackInput')?.value.trim().toUpperCase();
 const box = document.getElementById('trackResultBox');
 if (!box || !q) return;
-const orders = getOrders();
-const match = orders.find(o => o.id === q);
+
+box.innerHTML = `<p style="color: var(--color-text-secondary); font-size: 0.85rem; margin-top: 10px;">Searching Cloud Firestore...</p>`;
+
+let match = null;
+if (window.StellaFirebase && window.StellaFirebase.db) {
+  try {
+    match = await window.StellaFirebase.db.lookupOrder(q);
+  } catch (err) {
+    console.warn('Firestore tracking lookup fallback:', err);
+  }
+}
+
+if (!match) {
+  const orders = getOrders();
+  match = orders.find(o => (o.id === q || o.orderId === q));
+}
+
 if (match) {
 box.innerHTML = `
 <div style="background: #FDFBFC; border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 14px; font-size: 0.85rem; margin-top: 10px;">
-<div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">Found: ${match.id}</div>
+<div style="font-weight: 700; color: var(--color-primary); margin-bottom: 4px;">Found: ${match.id || match.orderId}</div>
 <div><strong>Recipient:</strong> ${match.customerName}</div>
 <div><strong>Status:</strong> <span style="background: #FCEEF2; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${match.status}</span></div>
 <div><strong>Order Total:</strong> ₹${match.total}</div>

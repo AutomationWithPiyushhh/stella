@@ -1,0 +1,352 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Project: The Stella (luxury skincare brand)
+// Firebase Project: the-stella
+//
+// Collection: products
+// Document ID: productId (e.g., 'stella-dual-phase')
+// Description: Skincare and haircare product catalog
+// Fields:
+//   - id: string (optional, 1-100 chars, matches document ID if provided)
+//   - name: string (required, 1-200 chars)
+//   - category: string (required, 1-50 chars, e.g., 'face', 'hair', 'underarm', 'body')
+//   - volume: string (optional, 1-50 chars)
+//   - price: number (required, > 0, <= 1000000)
+//   - originalPrice: number (optional, > 0, <= 1000000)
+//   - stock: number (required, >= 0, <= 1000000)
+//   - badge: string (optional, 1-50 chars)
+//   - actives: string (optional, 1-500 chars)
+//   - description: string (optional, 1-5000 chars)
+//   - howToUse: string (optional, 1-2000 chars)
+//   - ingredients: string (optional, 1-5000 chars)
+//   - image: string (optional URL, 1-1000 chars)
+//   - createdAt: timestamp (optional)
+//   - updatedAt: timestamp (optional)
+//
+// Collection: orders
+// Document ID: orderId (e.g., 'STL-90412')
+// Description: Customer orders placed via checkout or store
+// Fields:
+//   - id: string (required, immutable, 3-64 chars, matches document ID)
+//   - date: string | timestamp (required, immutable, string 4-50 chars or timestamp)
+//   - customerName: string (required, immutable, 1-100 chars)
+//   - phone: string (required, immutable, 7-25 chars)
+//   - address: string (required, immutable, 5-500 chars)
+//   - items: list of maps (required, immutable, 1-100 items)
+//   - total: number (required, immutable, > 0, <= 10000000)
+//   - status: string (required, 'Processing' on create; admin mutable: 'Processing'|'Shipped'|'Delivered'|'Cancelled')
+//   - paymentMethod: string (required, immutable, 2-50 chars)
+//   - customerEmail: string (optional, immutable, valid email, <= 100 chars)
+//   - userId: string (optional, immutable, matches request.auth.uid if authenticated)
+//   - subtotal: number (optional, immutable, >= 0, <= 10000000)
+//   - discount: number (optional, immutable, >= 0, <= 10000000)
+//   - shipping: number (optional, immutable, >= 0, <= 1000000)
+//   - trackingNumber: string (optional, admin mutable, 1-100 chars)
+//   - notes: string (optional, immutable, 1-500 chars)
+//   - createdAt: timestamp (optional, immutable)
+//   - updatedAt: timestamp (optional)
+//
+// Collection: users
+// Document ID: userId (matches request.auth.uid)
+// Description: Customer profile and account details
+// Fields:
+//   - id: string (optional, immutable, matches userId)
+//   - uid: string (optional, immutable, matches userId)
+//   - name: string (required, 1-100 chars)
+//   - email: string (required, valid email format, <= 100 chars)
+//   - phone: string (optional, 7-25 chars)
+//   - address: string (optional, 1-500 chars)
+//   - addresses: list of maps (optional, <= 20 entries)
+//   - joinedDate: string (optional, 1-50 chars)
+//   - role: string (optional, restricted from client privilege escalation)
+//   - isAdmin: bool (optional, restricted from client privilege escalation)
+//   - createdAt: timestamp (optional, immutable)
+//   - updatedAt: timestamp (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -----------------------------------------------------------
+    // Helper Functions
+    // -----------------------------------------------------------
+
+    // Check if the request is from an authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the document path
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if user is an administrator via custom claims or bootstrap email
+    function isAdmin() {
+      return isAuthenticated() && (
+        ('admin' in request.auth.token && request.auth.token.admin == true) ||
+        ('role' in request.auth.token && request.auth.token.role == 'admin') ||
+        (request.auth.token.email == 'admin@thestella.in' &&
+         request.auth.token.email_verified == true)
+      );
+    }
+
+    // Validate presence of required keys in incoming data
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // Validate that only allowed keys are present in incoming data
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Ensure specified fields are not altered during an update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Validate standard email format
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() <= 100 &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Validate URL format (http or https)
+    function isValidUrl(url) {
+      return url is string &&
+        url.size() <= 1000 &&
+        (url.matches("^https://.*") || url.matches("^http://.*"));
+    }
+
+    // Validate optional string field length if present
+    function isValidOptionalString(field, minLen, maxLen) {
+      return !(field in request.resource.data) ||
+        (request.resource.data[field] is string &&
+         request.resource.data[field].size() >= minLen &&
+         request.resource.data[field].size() <= maxLen);
+    }
+
+    // Validate optional number field bounds if present
+    function isValidOptionalNumber(field, minVal, maxVal) {
+      return !(field in request.resource.data) ||
+        (request.resource.data[field] is number &&
+         request.resource.data[field] >= minVal &&
+         request.resource.data[field] <= maxVal);
+    }
+
+    // Validate optional email field if present
+    function isValidOptionalEmail(field) {
+      return !(field in request.resource.data) ||
+        isValidEmail(request.resource.data[field]);
+    }
+
+    // -----------------------------------------------------------
+    // Domain Validators: Products
+    // -----------------------------------------------------------
+
+    function isValidProduct(data) {
+      let requiredFields = ['name', 'category', 'price', 'stock'];
+      let allowedFields = [
+        'id', 'name', 'category', 'volume', 'price', 'originalPrice',
+        'stock', 'badge', 'actives', 'description', 'howToUse',
+        'ingredients', 'image', 'createdAt', 'updatedAt'
+      ];
+
+      return hasRequiredFields(requiredFields) &&
+        hasOnlyAllowedFields(allowedFields) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 50 &&
+        data.price is number && data.price > 0 && data.price <= 1000000 &&
+        data.stock is number && data.stock >= 0 && data.stock <= 1000000 &&
+        isValidOptionalString('id', 1, 100) &&
+        isValidOptionalString('volume', 1, 50) &&
+        isValidOptionalNumber('originalPrice', 0, 1000000) &&
+        isValidOptionalString('badge', 1, 50) &&
+        isValidOptionalString('actives', 1, 500) &&
+        isValidOptionalString('description', 1, 5000) &&
+        isValidOptionalString('howToUse', 1, 2000) &&
+        isValidOptionalString('ingredients', 1, 5000) &&
+        (!('image' in data) || isValidUrl(data.image)) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    // -----------------------------------------------------------
+    // Domain Validators: Orders
+    // -----------------------------------------------------------
+
+    function isValidOrder(data) {
+      let requiredFields = [
+        'id', 'date', 'customerName', 'phone', 'address',
+        'items', 'total', 'status', 'paymentMethod'
+      ];
+      let allowedFields = [
+        'id', 'date', 'customerName', 'phone', 'address',
+        'items', 'total', 'status', 'paymentMethod',
+        'customerEmail', 'userId', 'subtotal', 'discount',
+        'shipping', 'trackingNumber', 'notes', 'createdAt', 'updatedAt'
+      ];
+
+      return hasRequiredFields(requiredFields) &&
+        hasOnlyAllowedFields(allowedFields) &&
+        data.id is string && data.id.size() >= 3 && data.id.size() <= 64 &&
+        ((data.date is string && data.date.size() >= 4 && data.date.size() <= 50) || data.date is timestamp) &&
+        data.customerName is string && data.customerName.size() >= 1 && data.customerName.size() <= 100 &&
+        data.phone is string && data.phone.size() >= 7 && data.phone.size() <= 25 &&
+        data.address is string && data.address.size() >= 5 && data.address.size() <= 500 &&
+        data.items is list && data.items.size() >= 1 && data.items.size() <= 100 && data.items[0] is map &&
+        data.total is number && data.total > 0 && data.total <= 10000000 &&
+        data.status is string && data.status in ['Processing', 'Shipped', 'Delivered', 'Cancelled'] &&
+        data.paymentMethod is string && data.paymentMethod.size() >= 2 && data.paymentMethod.size() <= 50 &&
+        isValidOptionalEmail('customerEmail') &&
+        isValidOptionalString('userId', 1, 128) &&
+        isValidOptionalNumber('subtotal', 0, 10000000) &&
+        isValidOptionalNumber('discount', 0, 10000000) &&
+        isValidOptionalNumber('shipping', 0, 1000000) &&
+        isValidOptionalString('trackingNumber', 1, 100) &&
+        isValidOptionalString('notes', 1, 500) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidOrderCreate(orderId) {
+      return isValidOrder(request.resource.data) &&
+        request.resource.data.id == orderId &&
+        request.resource.data.status == 'Processing' &&
+        (!('userId' in request.resource.data) ||
+         (isAuthenticated() && request.resource.data.userId == request.auth.uid));
+    }
+
+    function isValidOrderUpdate() {
+      return isValidOrder(request.resource.data) &&
+        areImmutableFieldsUnchanged([
+          'id', 'date', 'customerName', 'phone', 'address',
+          'items', 'total', 'paymentMethod'
+        ]) &&
+        (!('userId' in resource.data) || request.resource.data.userId == resource.data.userId) &&
+        (!('customerEmail' in resource.data) || request.resource.data.customerEmail == resource.data.customerEmail) &&
+        request.resource.data.status in ['Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    }
+
+    // -----------------------------------------------------------
+    // Domain Validators: Users
+    // -----------------------------------------------------------
+
+    function isValidUser(data) {
+      let requiredFields = ['name', 'email'];
+      let allowedFields = [
+        'id', 'uid', 'name', 'email', 'phone', 'address',
+        'addresses', 'joinedDate', 'role', 'isAdmin',
+        'createdAt', 'updatedAt'
+      ];
+
+      return hasRequiredFields(requiredFields) &&
+        hasOnlyAllowedFields(allowedFields) &&
+        data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.email is string && data.email.size() <= 100 && isValidEmail(data.email) &&
+        isValidOptionalString('id', 1, 128) &&
+        isValidOptionalString('uid', 1, 128) &&
+        isValidOptionalString('phone', 7, 25) &&
+        isValidOptionalString('address', 1, 500) &&
+        (!('addresses' in data) || (data.addresses is list && data.addresses.size() <= 20)) &&
+        isValidOptionalString('joinedDate', 1, 50) &&
+        isValidOptionalString('role', 1, 50) &&
+        (!('isAdmin' in data) || data.isAdmin is bool) &&
+        (!('createdAt' in data) || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidUserCreate(userId) {
+      return (!('id' in request.resource.data) || request.resource.data.id == userId) &&
+        (!('uid' in request.resource.data) || request.resource.data.uid == userId) &&
+        (!('role' in request.resource.data) || request.resource.data.role != 'admin' || isAdmin()) &&
+        (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false || isAdmin());
+    }
+
+    function isValidUserUpdate(userId) {
+      return areImmutableFieldsUnchanged(['id', 'uid', 'createdAt']) &&
+        (!('role' in request.resource.data) ||
+         !('role' in resource.data) ||
+         request.resource.data.role == resource.data.role ||
+         isAdmin()) &&
+        (!('isAdmin' in request.resource.data) ||
+         !('isAdmin' in resource.data) ||
+         request.resource.data.isAdmin == resource.data.isAdmin ||
+         isAdmin());
+    }
+
+    // -----------------------------------------------------------
+    // Collection Rules
+    // -----------------------------------------------------------
+
+    // 1. Products Catalog: Publicly readable; writeable only by admin
+    match /products/{productId} {
+      allow read: if true;
+
+      allow create: if isAdmin() &&
+                       isValidProduct(request.resource.data) &&
+                       (!('id' in request.resource.data) || request.resource.data.id == productId);
+
+      allow update: if isAdmin() &&
+                       isValidProduct(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['id']);
+
+      allow delete: if isAdmin();
+    }
+
+    // 2. Orders: Public lookup by ID for tracking; customer queries for own orders; status updates by admin
+    match /orders/{orderId} {
+      // Anyone can look up an order by exact orderId for tracking (single document fetch)
+      allow get: if true;
+
+      // Customers can list/query only their own orders; admin can list all orders
+      allow list: if isAdmin() || (
+        isAuthenticated() && (
+          ('userId' in resource.data && resource.data.userId == request.auth.uid) ||
+          ('customerEmail' in resource.data && resource.data.customerEmail == request.auth.token.email) ||
+          ('phone' in resource.data && 'phone_number' in request.auth.token && resource.data.phone == request.auth.token.phone_number)
+        )
+      );
+
+      // Customers can create an order in 'Processing' status
+      allow create: if isValidOrderCreate(orderId);
+
+      // Status updates (e.g. to 'Shipped', 'Delivered') and tracking updates restricted to admin
+      allow update: if isAdmin() && isValidOrderUpdate();
+
+      // Deletion restricted to admin
+      allow delete: if isAdmin();
+    }
+
+    // 3. Users: Authenticated user can read and write only their own profile; admin can read user records
+    match /users/{userId} {
+      // User can read their own profile; admin can read user profiles
+      allow read: if isOwner(userId) || isAdmin();
+
+      // User can create their own profile without self-elevating privileges
+      allow create: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       isValidUserCreate(userId);
+
+      // User can update their own profile with immutable fields and roles protected
+      allow update: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       isValidUserUpdate(userId);
+
+      // User can delete their own profile, or admin can delete
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // Default Deny: All other document paths are closed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
