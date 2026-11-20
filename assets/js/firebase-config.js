@@ -254,14 +254,25 @@
       );
     },
 
-    // Create Order in Firestore
+    // Create Order in Firestore (sanitized against strict firestore.rules)
     createOrder: async function (orderObj) {
       if (!db) initialize();
       if (!db) return null;
-      const cleanOrder = Object.assign({}, orderObj, {
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      const allowedKeys = [
+        'id', 'date', 'customerName', 'phone', 'address',
+        'items', 'total', 'status', 'paymentMethod',
+        'customerEmail', 'userId', 'subtotal', 'discount',
+        'shipping', 'trackingNumber', 'notes'
+      ];
+      const cleanOrder = {};
+      for (let i = 0; i < allowedKeys.length; i++) {
+        const k = allowedKeys[i];
+        if (orderObj[k] !== undefined && orderObj[k] !== null && orderObj[k] !== '') {
+          cleanOrder[k] = orderObj[k];
+        }
+      }
+      cleanOrder.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      cleanOrder.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
       await db.collection('orders').doc(orderObj.id).set(cleanOrder);
       return cleanOrder;
     },
