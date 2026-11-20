@@ -791,6 +791,7 @@ area.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 function addBundleToBag(ids) {
 ids.forEach(id => addToBag(id, 1));
+appliedPromoCode = 'STELLA20';
 checkoutDiscount = 0.20;
 showToast("Prescribed Protocol added to bag with 20% discount applied!");
 spaNavigate(null, 'checkout.html');
@@ -801,6 +802,7 @@ spaNavigate(null, 'checkout.html');
 // 7. CHECKOUT & RAZORPAY PAYMENT VIEW
 // ==========================================
 let checkoutDiscount = 0;
+let appliedPromoCode = '';
 let selectedCheckoutPaymentMethod = 'razorpay';
 
 function loadRazorpaySdk() {
@@ -887,9 +889,18 @@ function renderCheckoutView(el) {
   }
   const defaultAddress = currentUser ? (currentUser.address || '') : '';
 
-  const shipping = subtotal >= 499 || subtotal === 0 ? 0 : 70;
-  const discountAmount = Math.round(subtotal * checkoutDiscount);
-  const grandTotal = Math.max(0, subtotal - discountAmount + shipping);
+  let shipping = subtotal >= 499 || subtotal === 0 ? 0 : 70;
+  let discountAmount = 0;
+  let grandTotal = subtotal + shipping;
+
+  if (appliedPromoCode === 'ONERUPEE') {
+    shipping = 0;
+    discountAmount = Math.max(0, subtotal - 1);
+    grandTotal = 1;
+  } else if (checkoutDiscount > 0) {
+    discountAmount = Math.round(subtotal * checkoutDiscount);
+    grandTotal = Math.max(0, subtotal - discountAmount + shipping);
+  }
 
   el.innerHTML = `
     <div class="container" style="padding: 40px 0 80px 0;">
@@ -1053,7 +1064,7 @@ function renderCheckoutView(el) {
             
             ${discountAmount > 0 ? `
               <div style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 8px; color: #15803D;">
-                <span>STELLA20 Discount (20%)</span>
+                <span>${appliedPromoCode === 'ONERUPEE' ? 'ONERUPEE Live Gateway Testing Protocol' : 'STELLA20 Discount (20%)'}</span>
                 <span>−₹${discountAmount}</span>
               </div>
             ` : ''}
@@ -1065,7 +1076,7 @@ function renderCheckoutView(el) {
 
             <!-- Discount Code Box -->
             <div style="display: flex; gap: 8px; margin-bottom: 24px;">
-              <input type="text" id="promoCodeInput" placeholder="Discount Code (e.g. STELLA20)" class="form-input" style="font-size: 0.82rem; text-transform: uppercase;">
+              <input type="text" id="promoCodeInput" placeholder="Discount Code (e.g. ONERUPEE or STELLA20)" class="form-input" style="font-size: 0.82rem; text-transform: uppercase;" value="${appliedPromoCode}">
               <button class="btn-minimal btn-minimal-outline" style="padding: 8px 16px; font-size: 0.82rem;" onclick="applyPromo()">Apply</button>
             </div>
 
@@ -1088,13 +1099,20 @@ function renderCheckoutView(el) {
 }
 
 function applyPromo() {
-  const val = document.getElementById('promoCodeInput')?.value.trim().toUpperCase();
-  if (val === 'STELLA20') {
+  const inputEl = document.getElementById('promoCodeInput');
+  const val = inputEl ? inputEl.value.trim().toUpperCase() : '';
+  if (val === 'ONERUPEE') {
+    appliedPromoCode = 'ONERUPEE';
+    checkoutDiscount = 0;
+    showToast("Promo Code ONERUPEE Applied: Order total reduced to ₹1 for live testing!");
+    renderCurrentRoute();
+  } else if (val === 'STELLA20') {
+    appliedPromoCode = 'STELLA20';
     checkoutDiscount = 0.20;
     showToast("Promo Code STELLA20 Applied: 20% Off!");
     renderCurrentRoute();
   } else {
-    showToast("Invalid promo code. Use STELLA20 for 20% off.");
+    showToast("Invalid promo code. Use ONERUPEE or STELLA20.");
   }
 }
 
@@ -1120,8 +1138,18 @@ async function executeCheckoutPayment(grandTotal) {
 
   let subtotal = 0;
   validItems.forEach(it => { subtotal += it.price * it.quantity; });
-  const shipping = subtotal >= 499 || subtotal === 0 ? 0 : 70;
-  const discountAmount = Math.round(subtotal * checkoutDiscount);
+  let shipping = subtotal >= 499 || subtotal === 0 ? 0 : 70;
+  let discountAmount = 0;
+  let finalGrandTotal = subtotal + shipping;
+
+  if (appliedPromoCode === 'ONERUPEE') {
+    shipping = 0;
+    discountAmount = Math.max(0, subtotal - 1);
+    finalGrandTotal = 1;
+  } else if (checkoutDiscount > 0) {
+    discountAmount = Math.round(subtotal * checkoutDiscount);
+    finalGrandTotal = Math.max(0, subtotal - discountAmount + shipping);
+  }
 
   // Validate fields
   const recipientName = document.getElementById('chkName')?.value.trim();
@@ -1169,8 +1197,9 @@ async function executeCheckoutPayment(grandTotal) {
 
     if (!window.Razorpay) {
       showRazorpayFallbackModal({
-        orderId, grandTotal, subtotal, discountAmount, shipping,
-        recipientName, phone: fullPhone, fullAddress, validItems
+        orderId, grandTotal: finalGrandTotal, subtotal, discountAmount, shipping,
+        recipientName, phone: fullPhone, fullAddress, validItems,
+        promoCode: appliedPromoCode
       });
       return;
     }
@@ -1183,7 +1212,7 @@ async function executeCheckoutPayment(grandTotal) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: Math.round(grandTotal * 100),
+          amount: Math.round(finalGrandTotal * 100),
           currency: 'INR',
           receipt: 'rcpt_' + orderId
         })
@@ -1198,8 +1227,9 @@ async function executeCheckoutPayment(grandTotal) {
       console.warn("Backend API unreachable:", apiErr);
       showToast("Server connection notice: Unable to contact /api/create-order.");
       showRazorpayFallbackModal({
-        orderId, grandTotal, subtotal, discountAmount, shipping,
-        recipientName, phone: fullPhone, fullAddress, validItems
+        orderId, grandTotal: finalGrandTotal, subtotal, discountAmount, shipping,
+        recipientName, phone: fullPhone, fullAddress, validItems,
+        promoCode: appliedPromoCode
       });
       return;
     }
@@ -1264,14 +1294,15 @@ async function executeCheckoutPayment(grandTotal) {
               razorpayOrderId: rzpOrderId,
               signature: signature,
               paymentMethod: 'Razorpay Online (Verified)',
-              totalAmount: grandTotal,
+              totalAmount: finalGrandTotal,
               subtotal,
               discountAmount,
               shipping,
               recipientName,
               phone: fullPhone,
               fullAddress,
-              validItems
+              validItems,
+              promoCode: appliedPromoCode
             });
           } else {
             showToast("Payment verification failed: " + (verifyData.error || "Signature mismatch."));
@@ -1293,8 +1324,9 @@ async function executeCheckoutPayment(grandTotal) {
     } catch (err) {
       console.warn("Razorpay launch issue:", err);
       showRazorpayFallbackModal({
-        orderId, grandTotal, subtotal, discountAmount, shipping,
-        recipientName, phone: fullPhone, fullAddress, validItems
+        orderId, grandTotal: finalGrandTotal, subtotal, discountAmount, shipping,
+        recipientName, phone: fullPhone, fullAddress, validItems,
+        promoCode: appliedPromoCode
       });
     }
     return;
@@ -1308,14 +1340,15 @@ async function executeCheckoutPayment(grandTotal) {
       orderId,
       paymentId,
       paymentMethod: 'Cash on Delivery',
-      totalAmount: grandTotal,
+      totalAmount: finalGrandTotal,
       subtotal,
       discountAmount,
       shipping,
       recipientName,
       phone: fullPhone,
       fullAddress,
-      validItems
+      validItems,
+      promoCode: appliedPromoCode
     });
     return;
   }
@@ -1323,8 +1356,9 @@ async function executeCheckoutPayment(grandTotal) {
   // If Direct UPI QR
   if (selectedCheckoutPaymentMethod === 'direct_upi') {
     showDirectUpiModal({
-      orderId, grandTotal, subtotal, discountAmount, shipping,
-      recipientName, phone: fullPhone, fullAddress, validItems
+      orderId, grandTotal: finalGrandTotal, subtotal, discountAmount, shipping,
+      recipientName, phone: fullPhone, fullAddress, validItems,
+      promoCode: appliedPromoCode
     });
     return;
   }
@@ -1552,7 +1586,7 @@ function finalizeOrderReceipt(params) {
             </div>
             ${params.discountAmount > 0 ? `
               <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #15803D;">
-                <span>Promotional Discount (STELLA20)</span>
+                <span>${params.promoCode === 'ONERUPEE' ? 'ONERUPEE Live Gateway Testing Protocol' : 'Promotional Discount (STELLA20)'}</span>
                 <span>−₹${params.discountAmount}</span>
               </div>
             ` : ''}
